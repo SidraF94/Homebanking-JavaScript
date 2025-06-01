@@ -1278,7 +1278,7 @@ function consultarSaldo() {
 // Funciones de Inicio de sesión y registro. ------------------------------------------------------------------------
 
 function iniciarSesion() {
-    let intentos = 5;
+    let intentos = 3;
     while (intentos > 0) {
         let user = pedirDato("Usuario:");
         let pass = pedirDato("Contraseña:");
@@ -1361,7 +1361,6 @@ function registrarUsuario() {
 
     alert("Te registraste exitosamente!");
 }
-
 
 //------------------------------------------------------------------------------------------------------
 // Funcion Homebanking, actua como el menu principal del sitio. ----------------------------------------
