@@ -1,7 +1,8 @@
+// Homebanking JavaScript. 
 
-//Estas dos variables manejaran la fecha y la simulación de los dias
-let fechaBaseSimulada = new Date(); // La declaramos al iniciar el programa
+let fechaBaseSimulada = new Date(); // La declaramos al iniciar el programa.
 let diasSimulados = 0;
+//Estas dos variables manejaran la fecha y la simulación de los dias
 
 let salirPrograma = false
 let logueado = false;
@@ -29,7 +30,7 @@ function obtenerFechaSimulada() {
 function avanzarDias(cantidad) {
     for (let i = 0; i < cantidad; i++) {
         diasSimulados++;
-        chequearEventosUsuario(usuarioActivo);
+        chequearEventosUsuario(usuarioActivo); //Esto es fundamental para el manejo de eventos temporarios.
     }
     alert(`Se avanzaron ${cantidad} día(s). Nueva fecha: ${obtenerFechaSimulada().toLocaleDateString()}`);
 }
@@ -61,13 +62,13 @@ let usuarios = [
         alias: "ADMI.NISTRADOR",
         banco: "Banco de Córdoba",
         numeroCuenta: 1111111111111111,
-        fechaRegistro: obtenerFechaSimulada(),
+        fechaUltimaRevision: new Date(obtenerFechaSimulada()),
         contactos: [],
         movimientos: [
             {
                 descripcion: "Deposito inicial",
-                monto: 10000,
-                saldoResultante: 10000,
+                monto: 500000,
+                saldoResultante: 50000,
                 fecha: new Date(obtenerFechaSimulada())
             }
         ],
@@ -82,7 +83,7 @@ let usuarios = [
             {
                 tipo: "pagoSueldo",
                 fechaUltimaRevision: null,
-                parametros: { monto: 50000 },
+                parametros: { monto: 500000 },
                 activo: true
             }
         ],
@@ -108,69 +109,136 @@ let usuarios = [
 
 // Función de transferencia entre usuarios. ---------------------------------------------------------------
 
-function realizarTransferencia(usuarioActivo, usuarios) {
-    const aliasDestino = prompt("Ingrese el alias del destinatario:").trim().toLowerCase();
-    const usuarioDestino = usuarios.find(usu => usu.alias.toLowerCase() === aliasDestino);
-
-    if (!usuarioDestino) {
-        alert("No se encontró ningun usuario con ese alias.");
-        return;
-    }
+function realizarTransferenciaADestino(usuarioActivo, usuarioDestino) {
     if (usuarioDestino.alias === usuarioActivo.alias) {
-        alert("No podes transferirte a vos mismo.");
+        alert("No podés transferirte a vos mismo.");
         return;
     }
     const monto = parseFloat(prompt("Ingrese el monto a transferir:"));
     if (isNaN(monto) || monto <= 0) {
-        alert("El monto ingresado no es valido.");
+        alert("El monto ingresado no es válido.");
         return;
     }
     if (usuarioActivo.saldo < monto) {
-        alert("No tenes saldo suficiente para realizar la transferencia.");
-        return
+        alert("No tenés saldo suficiente para realizar la transferencia.");
+        return;
     }
     usuarioActivo.saldo -= monto;
     usuarioDestino.saldo += monto;
-    const fecha = new Date(obtenerFechaSimulada());
-    // En este caso la funcion registraMovimiento no puede hacerlo en otro usuario, por lo que generamos un push directo sobre 
-    // Los movimientos del usuario para no crear un evento que se usara por una unica vez.
+    const fecha = obtenerFechaSimulada();
+
     usuarioActivo.movimientos.push({
-        descripcion: `Transferencia a ${usuarioDestino.alias}`,
+        descripcion: `Transferencia a ${usuarioDestino.nombre} ${usuarioDestino.apellido}`,
         monto: -monto,
         saldoResultante: usuarioActivo.saldo,
-        fecha: fecha
+        fecha: new Date(fecha)
     });
     usuarioDestino.movimientos.push({
-        descripcion: `Transferencia recibida de ${usuarioActivo.alias}`,
+        descripcion: `Transferencia recibida de ${usuarioActivo.nombre} ${usuarioActivo.apellido}`,
         monto: monto,
         saldoResultante: usuarioDestino.saldo,
-        fecha: fecha
+        fecha: new Date(fecha)
     });
-    agregarNotificacion(usuarioActivo, `Transferiste $${monto} a ${usuarioDestino.nombre} ${usuarioDestino.apellido}`);
-    agregarNotificacion(usuarioDestino, `Recibiste $${monto} de ${usuarioActivo.nombre} ${usuarioActivo.apellido}`);
 
-    const yaEsContacto = usuarioActivo.contactos.some(cont => cont.alias.toLowerCase() === usuarioDestino.alias.toLowerCase);
+    // Agregar notificación usando la función que ya tenés
+    agregarNotificacion(
+        usuarioDestino,
+        `Recibiste una transferencia de ${usuarioActivo.nombre} ${usuarioActivo.apellido} por $${monto}.`
+    );
+
+    alert(
+        `Transferencia realizada:\n` +
+        `Monto: $${monto}\n` +
+        `A: ${usuarioDestino.nombre} ${usuarioDestino.apellido}\n` +
+        `Banco: ${usuarioDestino.banco}\n` +
+        `Cuenta: ${usuarioDestino.numeroCuenta}`
+    );
+}
+
+
+function transferirPorContacto(usuarioActivo, usuarios) {
+    if (!usuarioActivo.contactos || usuarioActivo.contactos.length === 0) {
+        alert("No tenés contactos guardados.");
+        return;
+    }
+    let mensaje = "Elegí un contacto:\n";
+    usuarioActivo.contactos.forEach((cont, index) => { //cont = contacto, index = posición
+        mensaje += `${index + 1} - ${cont.nombre} ${cont.apellido || ""} (${cont.alias})\n`;
+    });
+    const opcion = prompt(mensaje);
+    const indice = parseInt(opcion) - 1;
+
+    if (isNaN(indice) || indice < 0 || indice >= usuarioActivo.contactos.length) {
+        alert("Opción inválida.");
+        return;
+    }
+    const contactoSeleccionado = usuarioActivo.contactos[indice];
+    const usuarioDestino = usuarios.find(usuario => usuario.alias.toLowerCase() === contactoSeleccionado.alias.toLowerCase());
+
+    if (!usuarioDestino) {
+        alert("No se encontró el usuario correspondiente al contacto.");
+        return;
+    }
+    realizarTransferenciaADestino(usuarioActivo, usuarioDestino);
+}
+
+function transferirPorAlias(usuarioActivo, usuarios) {
+    const aliasDestino = prompt("Ingrese el alias del destinatario:").trim().toLowerCase(); //.trim elimina espacios
+    const usuarioDestino = usuarios.find(usu => usu.alias.toLowerCase() === aliasDestino);
+
+    if (!usuarioDestino) {
+        alert("No se encontró ningún usuario con ese alias.");
+        return;
+    }
+    if (usuarioDestino.alias === usuarioActivo.alias) {
+        alert("No podés transferirte a vos mismo.");
+        return;
+    }
+    realizarTransferenciaADestino(usuarioActivo, usuarioDestino);
+
+    const yaEsContacto = usuarioActivo.contactos.some(
+        cont => cont.alias.toLowerCase() === usuarioDestino.alias.toLowerCase() // .some (como .find) son funciones callback
+        // hay que pasarle una funcion como argumento. 
+    );
     if (!yaEsContacto) {
         const deseaAgregar = confirm(`Querés agregar a ${usuarioDestino.nombre} ${usuarioDestino.apellido} como contacto?`);
         if (deseaAgregar) {
             usuarioActivo.contactos.push({
                 alias: usuarioDestino.alias,
                 nombre: usuarioDestino.nombre,
+                apellido: usuarioDestino.apellido,
                 banco: usuarioDestino.banco,
                 numeroCuenta: usuarioDestino.numeroCuenta
             });
-            agregarNotificacion(usuarioActivo, `Agregaste a ${usuarioDestino.alias} como contacto después de una transferencia.`);
             alert("Contacto agregado exitosamente.");
         }
     }
-    alert(
-        `Transferencia realizada:\n` +
-        `Monto: $${monto}\n` +
-        `A: ${usuarioDestino.nombre} (${usuarioDestino.apellido})\n` +
-        `Banco: ${usuarioDestino.banco}\n` +
-        `Cuenta: ${usuarioDestino.numeroCuenta}`
-    );
 }
+
+function gestionarTransferencias(usuarioActivo, usuarios) {
+    while (true) {
+        const opcion = prompt(
+            "Menú Transferencias:\n" +
+            "1 - Transferir por alias\n" +
+            "2 - Transferir por contacto\n" +
+            "0 - Volver al menú principal"
+        );
+
+        if (opcion === null || opcion === "0") break;
+
+        switch (opcion) {
+            case "1":
+                transferirPorAlias(usuarioActivo, usuarios);
+                break;
+            case "2":
+                transferirPorContacto(usuarioActivo, usuarios);
+                break;
+            default:
+                alert("Opción inválida.");
+        }
+    }
+}
+
 
 // Funcion de Deposito ------------------------------------------------------------------------------------
 
@@ -197,7 +265,7 @@ function ingresarDinero() {
 
 // Funciones de Sueldos -----------------------------------------------------------------------------------
 
-function depositarSueldo(usuario, evento, fechaEvento) {
+function depositarSueldo(usuario, evento) {
     const monto = evento.parametros.monto;
     usuario.saldo += monto;
     registraMovimiento("Sueldo mensual", +monto);
@@ -207,9 +275,9 @@ function depositarSueldo(usuario, evento, fechaEvento) {
 function verificarCuentaSueldo(usuario) {
     if (usuario.eventosTemporarios.some(event => event.tipo === "pagoSueldo")) return; // Si ya tiene el evento cuenta sueldo return.
 
-    const deseaCuentaSueldo = confirm("¿Deseás vincular tu cuenta sueldo y recibir tu sueldo automáticamente cada mes?");
+    const deseaCuentaSueldo = confirm("Querés vincular tu cuenta sueldo y recibir tu sueldo automáticamente cada mes?");
     if (deseaCuentaSueldo) {
-        const sueldoAleatorio = Math.floor(Math.random() * 300001) + 700000; // entre $700.000 y $1.000.000
+        const sueldoAleatorio = Math.floor(Math.random() * 300001) + 400000; // entre $700.000 y $1.000.000
         crearEventoTemporario(usuario, "pagoSueldo", {
             monto: sueldoAleatorio,
             diaDelMes: 5 // Dia que cobra
@@ -298,18 +366,16 @@ function renovarServicios(usuario) {
     const evento = usuario.eventosTemporarios.find(evento => evento.tipo === "renovarServicios");
 
     if (!evento) return;
-
     // Evitar procesar más de una vez por mes
     if (evento.fechaUltimaRevision &&
         evento.fechaUltimaRevision.getMonth() === fechaHoy.getMonth() &&
         evento.fechaUltimaRevision.getFullYear() === fechaHoy.getFullYear()) {
         return;
     }
-
     usuario.servicios.forEach(servicio => {
         const { min, max } = servicio.rango;
-        const nuevoMonto = Math.floor(Math.random() * (max - min + 1)) + min; // Aca generamos el monto de cada factura con forEach
-
+        const nuevoMonto = Math.floor(Math.random() * (max - min + 1)) + min; // Aca generamos el monto de cada factura 
+        // con forEach que es una funcion callback.
         if (servicio.pagado) {
             servicio.monto = nuevoMonto;
             servicio.pagado = false;
@@ -328,14 +394,13 @@ function renovarServicios(usuario) {
 }
 
 function verServiciosImpagos() {
-    const impagos = usuarioActivo.servicios.filter(serv => !serv.pagado && serv.monto > 0);
+    const impagos = usuarioActivo.servicios.filter(serv => !serv.pagado && serv.monto > 0); //.filter es una función callback
     if (impagos.length === 0) {
         alert("No hay servicios impagos.");
         return;
     }
-
     let mensaje = "Servicios impagos:\n";
-    impagos.forEach((serv, i) => {
+    impagos.forEach((serv, i) => { // i para enumerar (+1).
         mensaje += `${i + 1}. ${serv.nombre}: $${serv.monto}\n`;
     });
     alert(mensaje);
@@ -357,16 +422,20 @@ function pagarServicio(usuario, nombreServicio) {
         alert(`Saldo insuficiente para pagar ${servicio.nombre}.`);
         return;
     }
+    const confirmar = confirm(`¿Deseás pagar el servicio ${servicio.nombre} por $${servicio.monto}?`);
 
-    usuarioActivo.saldo -= servicio.monto;
-    registraMovimiento(`Pago servicio ${servicio.nombre}`, -servicio.monto);
+    if (!confirmar) return;
+
+    const montoPagado = servicio.monto;
+
+    usuario.saldo -= montoPagado;
+    registraMovimiento(`Pago servicio ${servicio.nombre}`, -montoPagado);
 
     servicio.monto = 0;
     servicio.pagado = true;
 
-    alert(`Has pagado el servicio ${servicio.nombre}.`);
+    alert(`Has pagado el servicio ${servicio.nombre} por $${montoPagado}.`);
 }
-
 
 function pagarTodosLosServicios() {
     const impagos = usuarioActivo.servicios.filter(serv => !serv.pagado && serv.monto > 0);
@@ -375,13 +444,15 @@ function pagarTodosLosServicios() {
         alert("No hay servicios impagos.");
         return;
     }
-
-    const total = impagos.reduce((acumular, serv) => acumular + serv.monto, 0);
-
+    const total = impagos.reduce((acumular, serv) => acumular + serv.monto, 0); //Funcion callback para 
+    // acumular un resultado a lo largo del array (en este caso servicios.)
     if (usuarioActivo.saldo < total) {
         alert(`Saldo insuficiente. Total requerido: $${total}`);
         return;
     }
+    const confirmar = confirm(`¿Deseás pagar los ${impagos.length} servicios por un total de $${total}?`);
+
+    if (!confirmar) return; // vuelve a gestionarServicios
 
     impagos.forEach(servicio => {
         usuarioActivo.saldo -= servicio.monto;
@@ -390,13 +461,10 @@ function pagarTodosLosServicios() {
         servicio.pagado = true;
     });
 
-    alert("Todos los servicios fueron pagados con éxito.");
+    alert(`Se pagaron ${impagos.length} servicios por un total de $${total}.`);
 }
 
 function gestionarServicios(usuarioActivo) {
-    // Aseguramos que el evento esté activo
-    crearEventoTemporario(usuarioActivo, "renovarServicios", { diaDelMes: 5 });
-
     while (true) {
         const opcion = prompt(
             "Pagar Servicios:\n" +
@@ -476,27 +544,43 @@ function crearPlazoFijo(usuario, monto, plazoDias, tasaAnual) {
 }
 
 
-function procesarPlazoFijo(usuario) { //Distinta de un evento temporario porque se hace todos los dias el recuento de intereses.
+function procesarPlazoFijo(usuario) {
     if (!usuario.plazosFijos) return;
 
     const fechaHoy = new Date(obtenerFechaSimulada());
 
-    usuario.plazosFijos.forEach(pf => {
-        if (pf.retirado || pf.cancelado) return; // Ignorar plazos cerrados
+    usuario.plazosFijos.forEach(pfijo => {
+        if (pfijo.retirado || pfijo.cancelado) return;
 
-        // Calcular dias desde ultima actualizacion
-        const diasTranscurridos = Math.floor((fechaHoy - pf.ultimaActualizacion) / (1000 * 60 * 60 * 24));
+        const diasTranscurridos = Math.floor((fechaHoy - pfijo.ultimaActualizacion) / (1000 * 60 * 60 * 24));
         if (diasTranscurridos <= 0) return;
 
-        // Intereses diarios: monto * tasa anual / 365
-        const interesDiario = pf.monto * (pf.tasaAnual / 100) / 365;
+        const interesDiario = pfijo.monto * (pfijo.tasaAnual / 100) / 365;
         const interesesNuevos = interesDiario * diasTranscurridos;
 
-        pf.interesesAcumulados += interesesNuevos;
-        if (interesesNuevos > 0) {
-            agregarNotificacion(usuario, `Tu plazo fijo generó $${interesesNuevos.toFixed(2)} en intereses.`);
+        pfijo.interesesAcumulados += interesesNuevos;
+        pfijo.ultimaActualizacion = new Date(fechaHoy);
+    });
+}
+
+function procesarPlazosFijosVencidos(usuario) {
+    if (!usuario.plazosFijos) return;
+
+    const fechaHoy = new Date(obtenerFechaSimulada());
+
+    usuario.plazosFijos.forEach(pfijo => {
+        if (pfijo.retirado || pfijo.cancelado) return;
+
+        const diasTotales = Math.floor((fechaHoy - new Date(pfijo.fechaInicio)) / (1000 * 60 * 60 * 24));
+
+        if (diasTotales >= pfijo.plazoDias) {
+            // Ya cumplió el plazo
+            const total = pfijo.monto + pfijo.interesesAcumulados;
+            usuario.saldo += total;
+            pfijo.retirado = true;
+
+            registraMovimiento(`Plazo fijo vencido: +$${pfijo.monto.toFixed(2)} + intereses: +$${pfijo.interesesAcumulados.toFixed(2)}`, total);
         }
-        pf.ultimaActualizacion = new Date(fechaHoy);
     });
 }
 
@@ -505,59 +589,70 @@ function retirarPlazoFijo(usuario, index) {
         alert("Plazo fijo no válido.");
         return false;
     }
-
-    const pf = usuario.plazosFijos[index];
+    const pfijo = usuario.plazosFijos[index];
     const fechaHoy = new Date(obtenerFechaSimulada());
 
-    if (pf.retirado) {
+    if (pfijo.retirado) {
         alert("Este plazo fijo ya fue retirado.");
         return false;
     }
-    if (pf.cancelado) {
+    if (pfijo.cancelado) {
         alert("Este plazo fijo fue cancelado.");
         return false;
     }
 
-    // Verificar si cumplió el plazo mínimo
-    if ((fechaHoy - pf.fechaInicio) / (1000 * 60 * 60 * 24) < 30) {
+    // Verificamos si cumplió el plazo mínimo:
+    const diasTranscurridos = Math.floor((fechaHoy - pfijo.fechaInicio) / (1000 * 60 * 60 * 24));
+    if (diasTranscurridos < 30) {
         alert("No se puede retirar antes de 30 días.");
         return false;
     }
-
-    const total = pf.monto + pf.interesesAcumulados;
+    const total = pfijo.monto + pfijo.interesesAcumulados;
     usuario.saldo += total;
-    // Marcar como retirado
-    pf.retirado = true;
+    // Marcamos como retirado
+    pfijo.retirado = true;
 
-
-    registraMovimiento(`Retiro plazo fijo + intereses: +$${total.toFixed(2)}`, total);
-    alert(`Plazo fijo retirado. Se acreditaron $${total.toFixed(2)} a su saldo.`);
+    registraMovimiento(`Retiro plazo fijo: $${pfijo.monto.toFixed(2)} + intereses: $${pfijo.interesesAcumulados.toFixed(2)}`, total);
+    alert(`Plazo fijo retirado. Se acreditaron $${total.toFixed(2)} a tu saldo.`);
     return true;
 }
 
+
 function mostrarPlazosFijos(usuario) {
+    procesarPlazosFijosVencidos(usuario); //este llamado se asegura de actualizar primero
+
     if (!usuario.plazosFijos || usuario.plazosFijos.length === 0) {
         alert("No hay plazos fijos activos.");
-        return;
+        return false;
     }
+
+    const fechaHoy = new Date(obtenerFechaSimulada());
     let mensaje = "Plazos fijos activos:\n";
+    let hayActivos = false;
 
     usuario.plazosFijos.forEach((pfijo, i) => {
         if (pfijo.retirado || pfijo.cancelado) return;
 
-        mensaje += `${i + 1}. Monto: $${pfijo.monto.toFixed(2)}, Plazo: ${pfijo.plazoDias} días, ` +
-            `Tasa anual: ${pfijo.tasaAnual}%, Intereses acumulados: $${pfijo.interesesAcumulados.toFixed(2)}\n`;
-    });
-    alert(mensaje);
-}
+        hayActivos = true;
+        const diasTranscurridos = Math.floor((fechaHoy - new Date(pfijo.fechaInicio)) / (1000 * 60 * 60 * 24));
 
+        mensaje += `${i + 1}. Monto: $${pfijo.monto.toFixed(2)}, Plazo: ${pfijo.plazoDias} días, ` +
+            `Tasa anual: ${pfijo.tasaAnual}%, Intereses acumulados: $${pfijo.interesesAcumulados.toFixed(2)}, ` +
+            `Días transcurridos: ${diasTranscurridos}\n`;
+    });
+    if (!hayActivos) {
+        alert("No hay plazos fijos activos.");
+        return false;
+    }
+    alert(mensaje);
+    return true;
+}
 
 function cancelarPlazoFijo(usuario, index) {
     if (!usuario.plazosFijos || index < 0 || index >= usuario.plazosFijos.length) {
         alert("Plazo fijo no válido.");
         return false;
     }
-
     const pfijo = usuario.plazosFijos[index];
     if (pfijo.retirado) {
         alert("Este plazo fijo ya fue retirado.");
@@ -567,7 +662,6 @@ function cancelarPlazoFijo(usuario, index) {
         alert("Este plazo fijo ya fue cancelado.");
         return false;
     }
-
     // Solo devuelve el monto original sin intereses
     usuario.saldo += pfijo.monto;
     pfijo.cancelado = true;
@@ -577,7 +671,7 @@ function cancelarPlazoFijo(usuario, index) {
     return true;
 }
 
-function manejarPlazoFijo() {
+function gestionarPlazoFijo() {
     let opcionPF;
 
     do {
@@ -589,7 +683,6 @@ function manejarPlazoFijo() {
       4. Cancelar plazo fijo (sin intereses)
       0. Volver al menú principal
     `);
-
         switch (opcionPF) {
             case "1":
                 const monto = parseFloat(prompt("Ingrese monto para plazo fijo:"));
@@ -597,30 +690,26 @@ function manejarPlazoFijo() {
                 const tasa = parseFloat(prompt("Ingrese tasa anual (%):"));
                 crearPlazoFijo(usuarioActivo, monto, plazo, tasa);
                 break;
-
             case "2":
                 mostrarPlazosFijos(usuarioActivo);
                 break;
-
             case "3":
-                mostrarPlazosFijos(usuarioActivo);
+                if (!mostrarPlazosFijos(usuarioActivo)) break;
                 const numeroRetiro = parseInt(prompt("Ingrese número de plazo fijo a retirar:")) - 1;
+                // -1 para que si le pedimos el indice 0 lo podamos pasar como 1, mas amistoso para el usuario.
                 if (!retirarPlazoFijo(usuarioActivo, numeroRetiro)) {
                     alert("No se pudo retirar el plazo fijo.");
                 }
                 break;
-
             case "4":
-                mostrarPlazosFijos(usuarioActivo);
+                if (!mostrarPlazosFijos(usuarioActivo)) break;
                 const numeroCancelar = parseInt(prompt("Ingrese número de plazo fijo a cancelar:")) - 1;
                 if (!cancelarPlazoFijo(usuarioActivo, numeroCancelar)) {
                     alert("No se pudo cancelar el plazo fijo.");
                 }
                 break;
-
             case "0":
                 break;
-
             default:
                 alert("Opción inválida.");
         }
@@ -638,16 +727,16 @@ function solicitarPrestamo(usuario) {
     }
     const montoInput = prompt("Cuanto queres solicitar? (Máximo de $500.000)");
     if (!montoInput) return
-    const montoSolicitado = parseInt(montoInput);
+    const montoSolicitado = parseInt(montoInput); //Lo vuelvo numero.
 
     if (isNaN(montoSolicitado) || montoSolicitado <= 0 || montoSolicitado > 500000) {
         alert("Monto invalido. Maximo de $500.000");
         return
     }
 
-    const interes = 0.4;
+    const interes = 0.4; //40% para todos.
     const cuotasTotales = 12;
-    const montoTotalConInteres = Math.round(montoSolicitado * (1 + interes));
+    const montoTotalConInteres = Math.round(montoSolicitado * (1 + interes)); // Math.round para redondear
     const valorCuota = Math.round(montoTotalConInteres / cuotasTotales)
     const prestamo = {
         montoSolicitado,
@@ -669,7 +758,7 @@ function solicitarPrestamo(usuario) {
 }
 
 
-function procesarCuotasPrestamo(usuario, evento, fechaActual) {
+function procesarCuotasPrestamo(usuario, evento) {
     const prestamo = usuario.prestamos.find(prest => prest.activo);
     if (!prestamo) return;
 
@@ -708,41 +797,46 @@ function mostrarPrestamos(usuario) {
         `Monto solicitado: $${prestamo.montoSolicitado}\n` +
         `Monto total con interés: $${prestamo.montoTotalConInteres}\n` +
         `Cuotas totales: ${prestamo.cuotasTotales}\n` +
-        `Cuotas pagadas: ${prestamo.cuotasPagadas}\n` +
         `Cuotas restantes: ${cuotasRestantes}\n` +
         `Deuda restante: $${deudaRestante}`
     )
 }
 
 function gestionarPrestamos(usuario) {
-    let opcion = prompt(
-        "Seleccione una opción de préstamos:\n" +
-        "1 - Solicitar préstamo\n" +
-        "2 - Ver estado del préstamo\n" +
-        "0 - Salir"
-    );
-
-    if (!opcion) return;
-    opcion = opcion.trim();
-
-    switch (opcion) {
-        case "1":
-            solicitarPrestamo(usuario);
-            break;
-
-        case "2":
-            mostrarPrestamos(usuario);
-            break;
-
-        case "0":
-            break;
-
-        default:
-            alert("Opción inválida.");
+    if (!usuario.prestamos || usuario.prestamos.length === 0) {
+        alert("No tiene préstamos activos.");
     }
+
+    let opcion;
+    do {
+        opcion = prompt(
+            "Seleccione una opción de préstamos:\n" +
+            "1 - Solicitar préstamo\n" +
+            "2 - Ver estado del préstamo\n" +
+            "0 - Salir"
+        );
+        if (!opcion) break;
+        opcion = opcion.trim();
+
+        switch (opcion) {
+            case "1":
+                solicitarPrestamo(usuario);
+                break;
+            case "2":
+                if (!usuario.prestamos || usuario.prestamos.length === 0) {
+                    alert("No tiene préstamos activos.");
+                } else {
+                    mostrarPrestamos(usuario);
+                }
+                break;
+            case "0":
+                // Salir del menú
+                break;
+            default:
+                alert("Opción inválida.");
+        }
+    } while (opcion !== "0");
 }
-
-
 
 // Funciones de Notificaciones ----------------------------------------------------------------------
 
@@ -755,7 +849,7 @@ function agregarNotificacion(usuario, mensaje) {
 }
 
 function contarNotificacionesPendientes(usuario) {
-    return usuario.notificaciones.filter(n => !n.leida).length;
+    return usuario.notificaciones.filter(noti => !noti.leida).length;
     // FILTRAMOS solo las notificaciones no leidas dentro de ese usuario
 }
 
@@ -777,23 +871,6 @@ function mostrarNotificaciones(usuario) {
 
 // Funciones de Historial --------------------------------------------------------------------------------------
 
-function mostrarHistorial(usuario) {
-    if (usuario.movimientos.length === 0) {
-        alert("No hay movimientos para mostrar.");
-        return
-    }
-    let mensaje = "Historial de movimientos:\n"; //Si hay movimientos se agregaran aqui. 
-
-    usuario.movimientos.slice().reverse().forEach(mov => {
-        let fechaString = mov.fecha.toLocaleDateString(); //Fecha a formato legible.
-        let signo = mov.monto >= 0 ? "+" : "-"; // Si es + es un ingreso si es - es un egreso.
-        mensaje += `${fechaString} - ${mov.descripcion}: ${signo}${Math.abs(mov.monto.toFixed(2))} - Saldo: $${mov.saldoResultante.toFixed(2)}\n`;
-        //Math.abs hace que el movimiento se muestre sin signo el cual tengo que pasar en los parametros.  
-    });
-
-    alert(mensaje)
-}
-
 function registraMovimiento(descripcion, monto) {
     usuarioActivo.movimientos.push({
         descripcion: descripcion,
@@ -801,6 +878,23 @@ function registraMovimiento(descripcion, monto) {
         saldoResultante: usuarioActivo.saldo,
         fecha: new Date(obtenerFechaSimulada())
     })
+}
+
+function mostrarHistorial(usuario) {
+    if (usuario.movimientos.length === 0) {
+        alert("No hay movimientos para mostrar.");
+        return
+    }
+    let mensaje = "Historial de movimientos:\n"; //Si hay movimientos se agregaran aqui. 
+
+    usuario.movimientos.slice().reverse().forEach(mov => { // Usé slice para hacer reverse sin modificar el array.
+        let fechaString = mov.fecha.toLocaleDateString(); //Fecha a formato legible.
+        let signo = mov.monto >= 0 ? "+$" : "-$"; //Operador ternario
+        mensaje += `${fechaString} - ${mov.descripcion}: ${signo}${Math.abs(mov.monto.toFixed(2))} - Saldo: $${mov.saldoResultante.toFixed(2)}\n`;
+        //Math.abs hace que el movimiento se muestre sin signo el cual tengo que pasar en los parametros.  
+    });
+
+    alert(mensaje)
 }
 
 // Funcion de Divisas ------------------------------------------------------------------------------------------
@@ -815,19 +909,28 @@ function gestionarDivisas() {
     if (tipoOperacion === "0" || tipoOperacion === null) return;
 
     const divisa = prompt("Ingrese la divisa (USD, EUR o BRL):").toUpperCase();
-    const monto = parseFloat(prompt("Ingrese el monto a operar"));
 
     if (!["USD", "EUR", "BRL"].includes(divisa)) {
         alert("Divisa no válida.");
         return;
     }
+    // Agregar mostrar saldo si es operación de venta
+    if (tipoOperacion === "2") {
+        let saldoDivisa = 0;
+        if (divisa === "USD") saldoDivisa = usuarioActivo.saldoDolares || 0;
+        if (divisa === "EUR") saldoDivisa = usuarioActivo.saldoEuros || 0;
+        if (divisa === "BRL") saldoDivisa = usuarioActivo.saldoReales || 0;
+        alert(`Tu saldo en ${divisa} es de ${saldoDivisa.toFixed(2)}.`);
+    }
+    const monto = parseFloat(prompt("Ingrese el monto a operar"));
+
     if (isNaN(monto) || monto <= 0) {
         alert("Monto inválido.");
         return;
     }
     const tasas = {
-        USD: 1100,
-        EUR: 1200,
+        USD: 1150,
+        EUR: 1310,
         BRL: 200
     };
     const equivalenteEnPesos = monto * tasas[divisa];
@@ -860,6 +963,11 @@ function gestionarDivisas() {
             alert(`No tenés suficiente saldo en ${divisa}.`);
             return;
         }
+        const confirmar = confirm(
+            `Estás por vender ${monto} ${divisa}, lo que en pesos son $${equivalenteEnPesos.toFixed(2)}.\n` +
+            "¿Deseás continuar?"
+        );
+        if (!confirmar) return;
 
         if (divisa === "USD") usuarioActivo.saldoDolares -= monto;
         if (divisa === "EUR") usuarioActivo.saldoEuros -= monto;
@@ -871,84 +979,84 @@ function gestionarDivisas() {
     }
 }
 
-
 // Funciones de Contactos --------------------------------------------------------------------------------------
 
 function agregarContactoAUsuario(usuarioActivo, aliasContacto) {
     aliasContacto = aliasContacto.trim().toLowerCase();
 
     if (!usuarioActivo.contactos) {
-        usuarioActivo.contactos = [];
+        usuarioActivo.contactos = []; // Creamos el array si no existe
     }
-
-    if (usuarioActivo.contactos.some(c => c.alias.toLowerCase() === aliasContacto)) {
-        alert("Este contacto ya esta en tu lista.")
-        return
+    if (usuarioActivo.contactos.some(cont => cont.alias.toLowerCase() === aliasContacto)) {
+        alert("Este contacto ya está en tu lista.");
+        return;
     }
+    const usuarioBuscado = usuarios.find(usuario => usuario.alias.toLowerCase() === aliasContacto);
 
-    let usuarioBuscado = usuarios.find(usuario => usuario.alias.toLowerCase() === aliasContacto);
     if (!usuarioBuscado) {
-        alert("No se encontro ningun usuario.");
-        return
+        alert("No se encontró ningún usuario con ese alias.");
+        return;
     }
-    let contacto = {
+    const contacto = {
         alias: usuarioBuscado.alias,
-        nombre: usuarioBuscado.nombre,
+        nombre: `${usuarioBuscado.nombre} ${usuarioBuscado.apellido}`, 
         banco: usuarioBuscado.banco,
         numeroCuenta: usuarioBuscado.numeroCuenta
-    }
-
+    };
     usuarioActivo.contactos.push(contacto);
-
-    agregarNotificacion(usuarioActivo, `Nuevo contacto agregado: ${contacto.nombre}`);
-    alert("Contacto agregado exitosamente!")
+    agregarNotificacion(usuarioActivo, `Nuevo contacto agregado: ${contacto.nombre}.`);
+    alert(`Contacto agregado exitosamente.\n${contacto.nombre}.`);
 }
 
 function verContactosDeUsuario(usuarioActivo) {
     if (!usuarioActivo.contactos || usuarioActivo.contactos.length === 0) {
-        alert("No tenes ningun contacto agendado.");
-        return
+        alert("No tenés ningún contacto agendado.");
+        return;
     }
     let mensaje = "Tus contactos:\n";
     usuarioActivo.contactos.forEach(cont => {
-        mensaje += `${cont.nombre} | ${cont.banco} | ${cont.numeroCuenta}\n`
+        mensaje += `${cont.nombre} | ${cont.banco} | ${cont.numeroCuenta}\n`;
     });
-
-    alert(mensaje)
+    alert(mensaje);
 }
 
 function gestionarContactos(usuarioActivo, usuarios) {
-    let opcionContactos = prompt(
-        "Menú Contactos:\n" +
-        "1 - Agendar contacto\n" +
-        "2 - Ver contactos\n" +
-        "3 - Ver alias\n" +
-        "4 - Cambiar alias\n" +
-        "5 - Volver al menú principal"
-    );
+    while (true) {
+        const opcionContactos = prompt(
+            "Menú Contactos:\n" +
+            "1 - Agendar contacto\n" +
+            "2 - Ver contactos\n" +
+            "3 - Ver alias\n" +
+            "4 - Cambiar alias\n" +
+            "0 - Volver al menú principal"
+        );
 
-    switch (opcionContactos) {
-        case "1":
-            let alias = prompt("Ingrese el alias del contacto para agregar:");
-            agregarContactoAUsuario(usuarioActivo, alias);
-            break;
-        case "2":
-            verContactosDeUsuario(usuarioActivo);
-            break;
-        case "3":
-            verAliasUsuario(usuarioActivo);
-            break;
-        case "4":
-            const cambiado = cambiarAliasUsuario(usuarioActivo, usuarios);
-            if (!cambiado) {
-                alert("No se cambió el alias.");
-            }
-            break;
-        case "5":
-            // Volver al menú principal
-            break;
-        default:
-            alert("Opción inválida.");
+        if (opcionContactos === null || opcionContactos === "0") break;
+
+        switch (opcionContactos) {
+            case "1":
+                const alias = prompt("Ingrese el alias del contacto para agregar:");
+                if (alias) {
+                    agregarContactoAUsuario(usuarioActivo, alias);
+                } else {
+                    alert("Alias inválido.");
+                }
+                break;
+            case "2":
+                verContactosDeUsuario(usuarioActivo);
+                break;
+            case "3":
+                verAliasUsuario(usuarioActivo);
+                break;
+            case "4":
+                const cambiado = cambiarAliasUsuario(usuarioActivo, usuarios);
+                if (!cambiado) {
+                    alert("No se cambió el alias.");
+                }
+                break;
+            default:
+                alert("Opción inválida.");
+        }
     }
 }
 
@@ -970,7 +1078,6 @@ function generarAlias() {
     }
     let alias = seleccionadas.join(".").toUpperCase(); // Unimos con un "." con join y llevamos a Mayusculas.
     return alias
-
 }
 
 function verAliasUsuario(usuarioActivo) {
@@ -982,7 +1089,6 @@ function cambiarAliasUsuario(usuarioActivo, usuarios) {
         alert("No se cambió el alias porque el token es incorrecto.");
         return false; // No cambia
     }
-
     //Expresion regular (Sacada de internet) para que compruebe que el formato del alias sea una palabra separada por un "."
     const aliasRegex = /^[a-z]+(\.[a-z]+){1,2}$/i;
 
@@ -993,13 +1099,13 @@ function cambiarAliasUsuario(usuarioActivo, usuarios) {
     }
     nuevoAlias = nuevoAlias.trim();
 
-    if (!aliasRegex.test(nuevoAlias)) {
+    if (!aliasRegex.test(nuevoAlias)) { //.test chequea que se cumpla la expresion regular que ingresamos a nuevoAlias
         alert("Alias inválido. Debe tener 2 o 3 palabras separadas por punto. Ej: juan.perez o maria.lopez.diaz");
         return false;
     }
 
     nuevoAlias = nuevoAlias.toUpperCase();
-
+    //Chequeamos que el alias no esté en uso.
     const aliasEnUso = usuarios.some(u => u.alias === nuevoAlias);
     if (aliasEnUso) {
         alert("Ese alias ya está en uso.");
@@ -1014,21 +1120,26 @@ function cambiarAliasUsuario(usuarioActivo, usuarios) {
 }
 // Funciones de Datos --------------------------------------------------------------------------------------
 
-function pedirDato(mensaje) { //El parametro mensaje es lo que vamos a ver en el prompt. 
+function pedirDato(mensaje, minLength = 4, maxLength = 20, soloLetras = false) {
     let valor;
+    const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/; 
+    // Expresion regular para permitir letras incluso acentuadasñ.
     do {
         valor = prompt(mensaje);
         if (!valor) {
-            alert("Este campo no puede quedar vacio.");
-        } else if (valor.length < 4) {
-            alert("Debe tener al menos 4 caracteres.")
+            alert("Este campo no puede quedar vacío.");
+        } else if (valor.length < minLength) {
+            alert(`Debe tener al menos ${minLength} caracteres.`);
             valor = null;
-        } else if (valor.length > 20) {
-            alert("Debe tener como maximo 20 caracteres.")
+        } else if (valor.length > maxLength) {
+            alert(`Debe tener como máximo ${maxLength} caracteres.`);
+            valor = null;
+        } else if (soloLetras && !regexLetras.test(valor)) {
+            alert("Solo se permiten letras y espacios.");
             valor = null;
         }
-    } while (!valor); // Se repetira mientras valor sea null vacio o falso
-    return valor
+    } while (!valor);
+    return valor;
 }
 
 function validarEdad(mensaje) {
@@ -1092,9 +1203,9 @@ function procesarEventoMensual(usuario, evento, fechaActual, funcionEjecutora, d
             const fechaEvento = new Date(ultima.getFullYear(), ultima.getMonth() + i, diaEjecucion);
 
             if (fechaActual >= fechaEvento) {
-                // Ejecutamos la función pasando usuario, evento y fechaEvento
+                // Ejecutar la función pasando usuario, evento y fechaEvento
                 funcionEjecutora(usuario, evento, fechaEvento);
-                // Actualizamos la fechaUltimaRevision para evitar múltiples ejecuciones
+                // Actualizar la fechaUltimaRevision para evitar múltiples ejecuciones
                 evento.fechaUltimaRevision = new Date(fechaEvento);
             }
         }
@@ -1103,7 +1214,10 @@ function procesarEventoMensual(usuario, evento, fechaActual, funcionEjecutora, d
 
 function chequearEventosUsuario(usuario) {
     const fechaActual = obtenerFechaSimulada();
-
+    // Crear evento renovarServicios si no existe para asegurar que siempre se procese
+    if (!usuario.eventosTemporarios.some(evento => evento.tipo === "renovarServicios")) {
+        crearEventoTemporario(usuario, "renovarServicios", { diaDelMes: 10 });
+    }
     // Procesar intereses de plazos fijos antes de revisar eventos. 
     procesarPlazoFijo(usuario);
 
@@ -1117,13 +1231,14 @@ function chequearEventosUsuario(usuario) {
             procesarEventoMensual(usuario, evento, fechaActual, generarCupones, 20);
         }
         if (evento.tipo === "renovarServicios") {
-            renovarServicios(usuario);
+            procesarEventoMensual(usuario, evento, fechaActual, renovarServicios, 10);
         }
         if (evento.tipo === "pagoPrestamo") {
-            procesarEventoMensual(usuario, evento, fechaActual, procesarCuotasPrestamo, 10);
+            procesarEventoMensual(usuario, evento, fechaActual, procesarCuotasPrestamo, 15);
         }
     }
 }
+
 
 // Otras funciones -----------------------------------------------------------------------------------------
 function saludarUsuario(usuario) {
@@ -1153,7 +1268,6 @@ function consultarSaldo() {
     if (usuarioActivo.saldoReales && usuarioActivo.saldoReales > 0) {
         mensaje += `Reales: R$${usuarioActivo.saldoReales.toFixed(2)}\n`;
     }
-
     if (mensaje === `Tu saldo actual:\n`) {
         alert("No tenés saldo en ninguna moneda.");
     } else {
@@ -1164,7 +1278,7 @@ function consultarSaldo() {
 // Funciones de Inicio de sesión y registro. ------------------------------------------------------------------------
 
 function iniciarSesion() {
-    let intentos = 3;
+    let intentos = 5;
     while (intentos > 0) {
         let user = pedirDato("Usuario:");
         let pass = pedirDato("Contraseña:");
@@ -1175,7 +1289,7 @@ function iniciarSesion() {
 
         if (usuarioEncontrado && usuarioEncontrado.contraseña === pass) {
             saludarUsuario(usuarioEncontrado);
-            usuarioActivo = usuarioEncontrado;
+            usuarioActivo = usuarioEncontrado; //ACA SE DEFINE EL USUARIO ACTIVO
 
             return true
         } else {
@@ -1190,32 +1304,35 @@ function iniciarSesion() {
 }
 
 function registrarUsuario() {
-    let nuevoUsuario = pedirDato("Elegi un nombre de usuario (Entre 4 y 20 caracteres)");
+    let nuevoUsuario = pedirDato("Elegi un nombre de usuario (Entre 4 y 20 caracteres)", 4, 20);
     let existe = usuarios.some(u => u.usuario === nuevoUsuario);
 
     if (existe) {
-        alert("Ese nombre de usuario ya esta en uso.");
-        return
+        alert("Ese nombre de usuario ya está en uso.");
+        return;
     }
-    let nuevaContraseña = pedirDato("Elegi una contraseña");
-    let nombre = pedirDato("Tu(s) nombre(s)");
-    let apellido = pedirDato("Tu(s) apellido(s)");
+
+    let nuevaContraseña = pedirDato("Elegi una contraseña", 4, 20);
+    let nombre = pedirDato("Tu(s) nombre(s)", 2, 30, true);
+    let apellido = pedirDato("Tu(s) apellido(s)", 2, 30, true);
+
     let sexo;
     do {
-        sexo = prompt("Ingresa tu genero: M, F o X");
+        sexo = prompt("Por favor ingresá una opción:\nM - Masculino\nF - Femenino\nX - Otros");
         if (!sexo || !["M", "F", "X"].includes(sexo.toUpperCase())) {
-            alert("Por favor ingresá M, F o X")
+            alert("Por favor ingresá M, F o X");
             sexo = null;
         } else {
             sexo = sexo.toUpperCase();
         }
     } while (!sexo);
+
     let edad = validarEdad("Tu edad");
     if (edad === null) return;
 
     let alias = generarAlias();
 
-    usuarios.push({ //Agregamos el usuario nuevo al array.
+    usuarios.push({
         usuario: nuevoUsuario,
         contraseña: nuevaContraseña,
         nombre: nombre,
@@ -1245,13 +1362,15 @@ function registrarUsuario() {
     alert("Te registraste exitosamente!");
 }
 
-//------------------------------------------------------------------------------------------------------
-// Funcion Homebanking, actua como el menu principal del sitio. 
 
+//------------------------------------------------------------------------------------------------------
+// Funcion Homebanking, actua como el menu principal del sitio. ----------------------------------------
+//------------------------------------------------------------------------------------------------------
 function homebanking() {
     let logueado = true;
 
     while (logueado) {
+        chequearEventosUsuario(usuarioActivo);
         let pendientes = contarNotificacionesPendientes(usuarioActivo)
         const opcion = prompt(
             `Bienvenido al Homebanking\n\nSelecciona una opción:\n
@@ -1270,7 +1389,6 @@ function homebanking() {
                 0. Cerrar sesión
                 `
         );
-
         switch (opcion) {
             case "1":
                 verificarCuentaSueldo(usuarioActivo);
@@ -1280,7 +1398,7 @@ function homebanking() {
                 ingresarDinero();
                 break;
             case "3":
-                realizarTransferencia(usuarioActivo, usuarios);
+                gestionarTransferencias(usuarioActivo, usuarios);
                 break;
             case "4":
                 gestionarServicios(usuarioActivo);
@@ -1301,7 +1419,7 @@ function homebanking() {
                 mostrarHistorial(usuarioActivo);
                 break;
             case "10":
-                manejarPlazoFijo();
+                gestionarPlazoFijo();
                 break;
             case "11":
                 gestionarContactos(usuarioActivo, usuarios);
@@ -1321,41 +1439,33 @@ function homebanking() {
 }
 
 //------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------
 //-----------------------------------       FLUJO PRINCIPAL      ---------------------------------------
-//------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
 
 while (!salirPrograma) {
     if (confirm("Desea iniciar sesión o registrarse?")) {
         while (!logueado) {
             let opcion = prompt("Elegi una opción:\n1- Iniciar sesión.\n2- Registrarse\n0- Salir");
-
             switch (opcion) {
                 case "1":
                     logueado = iniciarSesion();
                     if (logueado) {
                         alert("¡Estás logueado!");
                         procesarPlazoFijo(usuarioActivo);
-                        chequearEventosUsuario(usuarioActivo);
                         homebanking();
                         logueado = false;
                     }
                     break;
-
                 case "2":
                     registrarUsuario();
                     break;
-
                 case "0":
                     alert("Te vas tan pronto?");
                     salirPrograma = true
                     break;
-
                 default:
                     alert("Opcion invalida, ingrese 1, 2 o 0.");
             }
-
             if ((!logueado && opcion === "1") || opcion === "0") {
                 break;
             }
