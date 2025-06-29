@@ -3,17 +3,414 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Entrega 1 | JavaScript</title>
+  <title>Homebanking</title>
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <h1>Sidra Fernando</h1>
-  <h2>Comisión N° 73465</h2>
-
-  <!-- Imagen moneda -->
-  <img id="plantilla-moneda" src="imagenes/coin.svg" class="moneda" style="display: none;" />
-
-  <script async src="script.js"></script>
-  <script src="fondo.js"></script>
+  <!-- Fondo dinamico de la pantalla de inicio -->
+  <div id="fondoDinamico"></div>
+  <!-- Contenido de la pantalla de registro/inicio -->
+  <section id="pantallaLoginRegistro">
+    <h1>Bienvenido a <br> Homebanking</h1>
+    <!-- Contenedor botones superiores -->
+    <div class="botonera-superior">
+      <button id="btnInicioSesion">Iniciar Sesión</button>
+      <button id="btnRegistro">Registrarse</button>
+    </div>
+    <!-- Formulario Inicio Sesión: autocomplete off para que no se llene automatico -->
+    <form id="formInicioSesion" class="oculto formulario-estandar" autocomplete="off">
+      <div>
+        <button type="button" class="cerrar-formulario" aria-label="Cerrar formulario">&times;</button>
+        <h2>Inicio de Sesión</h2>
+        <input type="text" id="loginUsuario" name="usuario" placeholder="Usuario" required />
+        <input type="password" id="loginPassword" name="password" placeholder="Contraseña" required />
+        <button type="submit">Entrar</button>
+      </div>
+    </form>
+    <!-- Formulario Registro -->
+    <form id="formRegistro" class="oculto formulario-estandar" autocomplete="off">
+      <div>
+        <button type="button" class="cerrar-formulario" aria-label="Cerrar formulario">&times;</button>
+        <h2>Registro</h2>
+        <input type="text" id="registroNombre" name="nombre" placeholder="Nombre" required />
+        <input type="text" id="registroApellido" name="apellido" placeholder="Apellido" required />
+        <input type="text" id="registroUsuario" name="usuario" placeholder="Usuario" required />
+        <input type="password" id="registroPassword" name="password" placeholder="Contraseña" required />
+        <select id="registroSexo" name="sexo" required>
+          <option value="" disabled selected>Sexo</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <input type="number" id="registroEdad" name="edad" placeholder="Edad" required />
+        <button type="submit">Registrar</button>
+      </div>
+    </form>
+    <!-- Boton para eliminar los datos de local storage -->
+    <button id="btnEliminarDatos" class="boton-eliminar">
+      <img src="img/trash3-fill.svg" alt="Eliminar datos en local storage" class="icono-basura"> Eliminar datos en
+      localStorage</button>
+  </section>
+  <!-- Seccion de homebanking. -------------------------------------------------------------------------- -->
+  <section id="pantallaHomebanking" class="oculto">
+    <h2 id="tituloBienvenida">Bienvenido</h2>
+    <div class="zona-superior-derecha">
+      <div id="iconoNotificaciones">
+        <img src="img/bell-fill.svg" alt="Notificaciones" />
+        <span id="contadorNotificaciones" class="badge oculto">0</span>
+      </div>
+      <button id="btnAvanzarDias">Avanzar días</button>
+      <button id="btnCerrarSesion">Cerrar sesión</button>
+    </div>
+    <!-- Tarjeta de saldos con opciones adicionales -->
+    <div id="saldoCardContainer">
+      <div class="saldo-card" id="saldoCard">
+        <!-- Frente: Saldo en pesos -->
+        <div class="saldo-front">
+          <h2 class="titulo-tarjeta">Saldo en Pesos</h2>
+          <!-- Monto y ojo al lado -->
+          <div class="saldo-monto">
+            <p id="saldoPesos">$**********</p>
+            <button id="btnMostrarOcultar" class="btn-eye">
+              <img src="img/eye.svg" alt="Mostrar saldo" id="iconoOjo">
+            </button>
+          </div>
+          <div class="saldo-bottom">
+            <div id="btnContactos" tabindex="0" role="button"> <img src="img/person-lines-fill.svg" alt="">
+            </div>
+            <button id="btnMostrarMovimientos" class="boton-modal">Mostrar Movimientos</button>
+            <button id="btnFlip" class="boton-modal">Ver otras monedas</button>
+          </div>
+        </div>
+        <!-- Dorso: Saldos en otras monedas -->
+        <div class="saldo-back">
+          <h2 class="titulo-tarjeta">Otras monedas</h2>
+          <ul class="lista-divisas">
+            <li>
+              <img src="img/estados-unidos.png" alt="Bandera de Estados Unidos" class="bandera-divisa">
+              <div class="info-divisa">
+                <span class="nombre-divisa">Dólares</span>
+                <span id="saldoDolares" class="monto-divisa">$0.00</span>
+              </div>
+            </li>
+            <li>
+              <img src="img/union-europea.png" alt="Bandera de la Union Europea" class="bandera-divisa">
+              <div class="info-divisa">
+                <span class="nombre-divisa">Euros</span>
+                <span id="saldoEuros" class="monto-divisa">€0.00</span>
+              </div>
+            </li>
+            <li>
+              <img src="img/brasil.png" alt="Bandera de Brasil" class="bandera-divisa">
+              <div class="info-divisa">
+                <span class="nombre-divisa">Reales</span>
+                <span id="saldoReales" class="monto-divisa">R$0.00</span>
+              </div>
+            </li>
+          </ul>
+          <button id="btnFlipBack" class="boton-modal">Volver</button>
+        </div>
+      </div>
+      <!-- Conjunto de botones, ingresar transferir y cambiar divisas -->
+      <div class="saldo-acciones">
+        <button id="btnIngresarDinero" class="boton-accion">
+          <img src="img/money-deposit.svg" alt="Ingresar Dinero">
+          <span>Ingresar Dinero</span>
+        </button>
+        <button id="btnTransferir" class="boton-accion">
+          <img src="img/send-money.svg" alt="Transferir">
+          <span>Transferir</span>
+        </button>
+        <button id="btnDivisas" class="boton-accion">
+          <img src="img/currency-exchange.svg" alt="Divisas">
+          <span>Divisas</span>
+        </button>
+      </div>
+    </div>
+    <!-- Modal de cambio de monedas -->
+    <div id="modalMonedasOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button type="button" id="btnCerrarMonedas" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h2 class="titulo-tarjeta">Monedas</h2>
+        <div class="contenedor-monedas">
+          <!-- Tarjeta USD -->
+          <div class="tarjeta-moneda">
+            <img src="img/estados-unidos.png" alt="USD" class="bandera-moneda">
+            <p class="monto-moneda">USD - $1150</p>
+            <div class="botones">
+              <button class="boton-modal btnComprar" data-moneda="USD">Comprar</button>
+              <button class="boton-modal btnVender" data-moneda="USD">Vender</button>
+            </div>
+          </div>
+          <!-- Tarjeta EUR -->
+          <div class="tarjeta-moneda">
+            <img src="img/union-europea.png" alt="EUR" class="bandera-moneda">
+            <p class="monto-moneda">EUR - $1310</p>
+            <div class="botones">
+              <button class="boton-modal btnComprar" data-moneda="EUR">Comprar</button>
+              <button class="boton-modal btnVender" data-moneda="EUR">Vender</button>
+            </div>
+          </div>
+          <!-- Tarjeta BRL -->
+          <div class="tarjeta-moneda">
+            <img src="img/brasil.png" alt="BRL" class="bandera-moneda">
+            <p class="monto-moneda">BRL - $200</p>
+            <div class="botones">
+              <button class="boton-modal btnComprar" data-moneda="BRL">Comprar</button>
+              <button class="boton-modal btnVender" data-moneda="BRL">Vender</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Opciones de transferencia -->
+    <div id="modalTransferenciasOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button type="button" id="btnCerrarTransferencias" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h2 class="titulo-tarjeta">Transferencias</h2>
+        <div class="botones">
+          <button id="btnTransferirAlias" class="boton-modal">Transferir por Alias</button>
+          <button id="btnTransferirContacto" class="boton-modal">Transferir por Contacto</button>
+        </div>
+      </div>
+    </div>
+    <!-- Select de contactos -->
+    <div id="modalSeleccionContacto" class="modal-overlay oculto">
+      <div class="modal-contenido" style="position: relative;">
+        <button type="button" id="btnCerrarSeleccionContacto" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h3 class="titulo-tarjeta">Elegí un contacto</h3>
+        <div>
+          <select id="selectContacto" style="width: 100%; padding: 8px; margin-top: 10px;"></select>
+        </div>
+        <button id="btnConfirmarContacto" class="boton-modal" style="margin-top: 15px;">Confirmar</button>
+      </div>
+    </div>
+    <div id="btnServicios" tabindex="0" role="button">
+    </div>
+    <!-- Dos columnas para botones con background. -->
+    <div class="grid-dos-columnas">
+      <div id="btnVincularCuentaSueldo" class="banner-homebanking" tabindex="0" role="button">
+        <span>¡Vinculá tu cuenta sueldo!</span>
+      </div>
+      <div id="btnAbrirPlazoFijo" class="banner-homebanking" tabindex="0" role="button">
+        <span>Tu dinero mejor en un plazo fijo</span>
+      </div>
+      <div id="btnPrestamos" class="banner-homebanking" tabindex="0" role="button">
+        <span>Prestamos personales online</span>
+      </div>
+      <div id="btnCuponera" class="banner-homebanking" tabindex="0" role="button">
+        <span>Suscribite para recibir <br> los mejores descuentos!</span>
+      </div>
+    </div>
+    <!-- Fecha. -->
+    <div id="relojSimulado">Fecha simulada: --/--/----</div>
+    <!-- Botonera de contactos -->
+    <div id="modalContactosOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button type="button" id="btnCerrarContactos" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button> 
+          <!-- &times es la x de los formularios. -->
+        <h3 class="titulo-tarjeta">Contactos</h3>
+        <div class="botones">
+          <button id="btnVerAlias" class="boton-modal">Ver Alias</button>
+          <button id="btnCambiarAlias" class="boton-modal">Cambiar Alias</button>
+          <button id="btnAgendarContacto" class="boton-modal">Agendar Contacto</button>
+          <button id="btnVerContactos" class="boton-modal">Ver Contactos</button>
+        </div>
+      </div>
+    </div>
+    <!-- div dinamico que se llena con los contactos del usuario a traves de JS. -->
+    <div id="modalListaContactos" class="modal-overlay oculto">
+      <div class="modal-contenido" style="position: relative;">
+        <button type="button" id="btnCerrarListaContactos" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h3 class="titulo-tarjeta">Lista de Contactos</h3>
+        <div id="tablaContactos"></div>
+      </div>
+    </div>
+    <!-- Opciones de prestamo. -->
+    <div id="modalPrestamos" class="modal-overlay oculto">
+      <div class="modal-contenido pequeno">
+        <button type="button" id="btnCerrarModalPrestamos" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h3 class="titulo-tarjeta">Préstamos</h3>
+        <div id="contenidoPrestamos">
+          <p>¿Qué querés hacer?</p>
+          <button id="btnSolicitarPrestamo" class="boton-modal">Solicitar préstamo</button>
+          <button id="btnVerEstadoPrestamo" class="boton-modal">Ver estado del préstamo</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal para opciones de plazo fijo -->
+    <div id="modalPlazosFijosOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido pequeño">
+        <button id="btnCerrarPlazoFijo" class="cerrar-formulario" aria-label="Cerrar movimientos">&times;</button>
+        <h2 class="titulo-tarjeta">Plazo Fijo</h2>
+        <div class="botones">
+          <button id="btnCrearPlazoFijo" class="boton-modal">Crear Plazo Fijo</button>
+          <button id="btnMostrarPlazosFijos" class="boton-modal">Mostrar Plazos Fijos</button>
+        </div>
+        <div class="botones" style="margin-top: 1rem;">
+          <button id="btnRetirarPlazoFijo" class="boton-modal">Retirar Plazo Fijo</button>
+          <button id="btnCancelarPlazoFijo" class="boton-modal">Cancelar Plazo Fijo</button>
+        </div>
+      </div>
+    </div>
+    <!-- Estructura para mostrar los plazos fijos -->
+    <div id="modalMostrarPlazosOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button type="button" id="btnCerrarMostrarPlazos" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h2 class="titulo-tarjeta">Plazos Fijos Activos</h2>
+        <table id="tablaPlazosFijos" class="tabla-estandar">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Monto</th>
+              <th>Plazo (días)</th>
+              <th>Tasa Anual (%)</th>
+              <th>Intereses Acum.</th>
+              <th>Días Transcurridos</th>
+            </tr>
+          </thead>
+          <tbody> 
+            <!-- Se rellena a traves de JS con forEach -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- cancelar plazos fijos con select -->
+    <div id="modalCancelarPlazoOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido pequeño">
+        <h2 class="titulo-tarjeta">Cancelar Plazo Fijo</h2>
+        <p>Selecciona el plazo fijo a cancelar:</p>
+        <select id="selectPlazosParaCancelar" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;"></select>
+        <div class="botones">
+          <button id="btnConfirmarCancelar" class="boton-modal">Cancelar Plazo</button>
+          <button id="btnCancelarCancelar" class="boton-modal boton-cancelar">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    <!-- retirar plazos fijos con select -->
+    <div id="modalRetirarPlazoOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido pequeño">
+        <h2 class="titulo-tarjeta">Retirar Plazo Fijo</h2>
+        <p>Selecciona el plazo fijo que deseas retirar:</p>
+        <select id="selectPlazosParaRetirar"
+          style="width: 100%; padding: 0.5rem; font-size: 1rem; margin-bottom: 1rem;"></select>
+        <div class="botones">
+          <button id="btnConfirmarRetiro" class="boton-modal">Retirar</button>
+          <button id="btnCancelarRetiro" class="boton-modal boton-cancelar">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de formulario para crear plazo fijo -->
+    <div id="modalCrearPlazoOverlay" class="modal-overlay oculto ">
+      <div class="modal-contenido pequeño">
+        <form id="formCrearPlazoFijo" class="formulario-estandar">
+          <button type="button" id="btnCancelarFormularioPlazo" class="cerrar-formulario"
+            aria-label="Cerrar movimientos">&times;</button>
+          <p>Completa los datos para crear un plazo fijo:</p>
+          <label for="inputMonto" class="formulario-label">Monto:</label>
+          <input type="number" id="inputMonto" name="monto" class="formulario-input" required min="1">
+          <label for="inputPlazo" class="formulario-label">Plazo (días):</label>
+          <input type="number" id="inputPlazo" name="plazo" class="formulario-input" required min="30">
+          <label for="inputTasa" class="formulario-label">Tasa Anual (%):</label>
+          <input type="number" id="inputTasa" name="tasa" class="formulario-input" required step="0.01" min="0.1">
+          <div class="botones">
+            <button type="submit" class="boton-modal">Confirmar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Modal slider de servicios. -->
+    <div id="modalServiciosOverlay" class="modal-overlay oculto">
+      <div class="modal-servicios">
+        <button type="button" id="btnCerrarServicios" class="cerrar-formulario"
+          aria-label="Cerrar formulario">&times;</button>
+        <h2>Servicios impagos</h2>
+        <div class="slider-container">
+          <button id="btnPrev" class="slider-nav">
+            &lt;</button>
+          <div id="slider" class="slider"></div>
+          <button id="btnNext" class="slider-nav">&gt;</button>
+        </div>
+        <div class="acciones-servicios">
+          <button id="btnPagarTodosServicios" class="boton-modal">Pagar todos</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de cupones -->
+    <div id="modalCuponesOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido modal-notificaciones">
+        <button id="btnCerrarCupones" class="cerrar-formulario">&times;</button>
+        <h3 class="titulo-tarjeta">Cuponera</h3>
+        <div id="contenedorCupones"></div>
+      </div>
+    </div>
+    <!-- Modal de movimentos. -->
+    <div id="modalMovimientosOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button id="btnCerrarMovimientos" class="cerrar-formulario" aria-label="Cerrar movimientos">&times;</button>
+        <h3 class="titulo-tarjeta">Movimientos recientes</h3>
+        <table id="tablaMovimientos" class="tabla-estandar">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se rellena con JS-->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Modal de notificaciones -->
+    <div id="modalNotificacionesOverlay" class="modal-overlay oculto">
+      <div class="modal-contenido">
+        <button id="btnCerrarNotificaciones" class="cerrar-formulario">&times;</button>
+        <h3>Notificaciones</h3>
+        <ul id="listaNotificaciones"></ul>
+      </div>
+    </div>
+  </section>
+  <!-- Modal Alerta -->
+  <div id="modalAlertaOverlay" class="modal-overlay oculto" tabindex="0">
+    <div class="modal-contenido pequeno">
+      <p id="modalAlertaMensaje">mensaje</p>
+      <button id="modalAlertaBtn" class="boton-modal">Aceptar</button>
+    </div>
+  </div>
+  <!-- Modal Prompt -->
+  <div id="modalPromptOverlay" class="modal-overlay oculto" tabindex="0">
+    <div class="modal-contenido pequeno">
+      <p id="modalPromptMensaje"></p>
+      <input type="text" id="modalPromptInput" />
+      <div class="botones">
+        <button id="modalPromptAceptar" class="boton-modal">Aceptar</button>
+        <button id="modalPromptCancelar" class="boton-modal boton-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Confirm -->
+  <div id="modalConfirmOverlay" class="modal-overlay oculto">
+    <div class="modal-contenido pequeno">
+      <p id="modalConfirmMensaje">No funciona si ves esto</p>
+      <div class="botones">
+        <button id="modalConfirmBtnOk" class="boton-modal">Aceptar</button>
+        <button id="modalConfirmBtnCancel" class="boton-modal boton-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <!-- Scripts de JS, primero carga todas las funciones y luego todos los eventos. -->
+  <script src="scripts/funciones.js"></script>
+  <script src="scripts/eventos.js"></script>
 </body>
+
 </html>

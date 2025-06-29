@@ -1,33 +1,855 @@
+/* Reset y base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  background-color: darkgray;
-  margin: 5%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  color: black;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  transition: background-image 0.8s ease-in-out;
+  overflow-x: hidden;
 }
-body h1 {
-  font-size: 5rem;
+/* Fondo en movimiento. */
+#fondoDinamico {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background-repeat: no-repeat;
+  background-size: 120vw auto;
+  background-position: 0% 50%;
+  animation: moverFondo 30s ease-in-out infinite alternate;
+  transition: background-image 10s ease-in-out;
 }
-body h2 {
-  font-size: 3rem;
-}
-
-.moneda {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  pointer-events: none;
-  z-index: 0;
-  animation: caer 3s linear infinite;
-}
-
-@keyframes caer {
+@keyframes moverFondo {
   0% {
-    transform: translateY(-50px) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
+    background-position: 0% 40%;
   }
   100% {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
+    background-position: 80% 50%;
   }
+}
+/* Estilos para el titulo de la pantalla principal */
+h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 2%;
+  font-size: 9rem;
+  font-weight: bold;
+  color: rgb(102, 144, 236);
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+}
+/* Estilos de la botonera superior de la pagina principal */
+.botonera-superior {
+  margin: 1% 0 0 0;
+  position: fixed;
+  top: 45px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 10px;
+  border-radius: 10px;
+}
+
+.botonera-superior button {
+  background-color: rgb(102, 144, 236);
+  color: snow;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 25px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(102, 144, 255, 0.5);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.botonera-superior button:hover {
+  background-color: rgb(75, 105, 180);
+  box-shadow: 0 6px 12px rgba(75, 105, 180, 0.7);
+  transform: translateY(-1.5px);
+}
+
+.botonera-superior button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(75, 105, 180, 0.5);
+}
+
+/* Formularios inicio sesión y registro --------------------------------------- */
+.formulario-estandar {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18%;
+  background-color: snow;
+  border: 3px solid #3384aa;
+  border-radius: 10px;
+  padding: 3rem 2rem;
+  z-index: 1;
+  font-size: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.formulario-estandar div {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Título formulario */
+.formulario-estandar h2 {
+  color: rgb(102, 144, 236);
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Inputs del formulario */
+.formulario-estandar input,
+.formulario-estandar select {
+  padding: 0.8rem;
+  font-size: 1.2rem;
+  border: 2px solid #3384aa;
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+  width: 100%;
+}
+
+.formulario-estandar input:focus,
+.formulario-estandar select:focus {
+  border-color: rgb(30, 66, 150);
+  outline: none;
+}
+/* Botones dentro de los formularios */
+.formulario-estandar button:not(.cerrar-formulario) {
+  background-color: rgb(102, 144, 236);
+  border: none;
+  color: snow;
+  padding: 10px 0;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 7px;
+}
+
+.formulario-estandar button:not(.cerrar-formulario):hover {
+  background-color: rgb(75, 105, 180);
+}
+/* Botón cerrar X para formularios */
+.cerrar-formulario {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: rgb(102, 144, 255);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.cerrar-formulario:hover {
+  color: rgb(75, 105, 180);
+  transform: scale(1.2);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.boton-eliminar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #9b2316;
+  color: snow;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.boton-eliminar:hover {
+  background-color: #eb1c1c;
+  transform: scale(1.1);
+}
+
+.icono-basura {
+  width: 3rem;
+  height:3rem;
+}
+/* Estilos de la pagina principal una vez iniciada sesion. ----------------------------------- */
+#pantallaLoginRegistro,
+#pantallaHomebanking {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  z-index: 1;
+}
+
+/* Estilo general para overlays --------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.795);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+/* Contenido visual del modal */
+.modal-contenido {
+  background-color: snow;
+  border-radius: 10px;
+  width: 90vw;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+.modal-contenido.pequeno {
+  width: 320px;
+  max-width: 90vw;
+  max-height: 60vh;
+  padding: 1rem;
+}
+
+.modal-contenido p {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+#modalPromptInput {
+  display: block;
+  margin: 10px auto 5%;
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  border: 2px solid #007bff;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  text-align: right;
+}
+
+#modalPromptInput:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+/* Botones unificados */
+.boton-modal {
+  padding: 10px 20px;
+  font-weight: bold;
+  background-color: #3884aa;
+  color: snow;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1.35rem;
+  margin: 1.5%;
+}
+
+.boton-modal:hover {
+  background-color: #214c61;
+}
+
+/* Botón cancelar específico */
+.boton-cancelar {
+  background-color: #a3160c;
+}
+
+.boton-cancelar:hover {
+  background-color: #7a0f08;
+}
+
+/* Contenedor de botones */
+.modal-contenido .botones {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+#relojSimulado {
+  font-size: 2rem;
+  text-align: right;
+  color: snow;
+  font-weight: 700;
+  margin: 5rem;
+}
+/* ----------------------------------------------------------------------------------------------------- */
+h2 {
+  font-size: 2.5rem;
+  padding: 1%;
+  color: #3384aa;
+}
+
+#tituloBienvenida {
+  font-size: 4.5rem;
+}
+#pantallaHomebanking {
+  background: linear-gradient(to bottom, snow 30%, #3384AA 85%, rgba(51, 132, 170, 0));
+  height: 100%;
+  width: 100%;
+}
+
+#saldoCardContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 2rem;
+  margin: 3rem;
+  margin-top: 2rem;
+  perspective: 1000px;
+}
+
+.saldo-card {
+  width: 45%;
+  height: 20rem;
+  border-radius: 10px;
+  background: snow;
+  box-shadow: 20px 20px 60px #686a6d,
+    -20px -20px 60px #ffffff;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.saldo-front,
+.saldo-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.saldo-back {
+  transform: rotateY(180deg);
+}
+
+.saldo-card.flipped {
+  transform: rotateY(180deg);
+}
+/* el ojo */
+.btn-eye {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#iconoOjo {
+  filter: drop-shadow(0 0 2px white);
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+#saldoPesos {
+  font-size: 5rem;
+  font-weight: bold;
+  color: black;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.titulo-tarjeta {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #3384aa;
+  align-self: flex-start;
+  width: 100%;
+  padding: 20px;
+  padding-bottom: 0;
+  margin-bottom: 1.2rem;
+}
+/* Monto y ojo uno al lado del otro */
+.saldo-monto {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+/* espacio entre botones */
+.saldo-bottom {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.lista-divisas {
+  list-style: none;
+  padding: 0 2rem;
+  margin: auto 0;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+}
+
+.lista-divisas li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bandera-divisa {
+  width: 30%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.info-divisa {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.nombre-divisa {
+  font-weight: 600;
+  color: #3884aa;
+}
+
+.monto-divisa {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #3384aa;
+}
+
+#btnFlipBack {
+  margin-bottom: 3%;
+}
+/* Estilos de los botones de trasnfe ingreso y divisas. */
+.saldo-acciones {
+  width: 50%;
+  margin: auto;
+  height: 20rem;
+  display: flex;
+  gap: 45px;
+  justify-content: space-between;
+}
+
+.boton-accion {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  border: none;
+  /* color entre #3384aa y snow */
+  background: #99bfd2;
+  border-radius: 10px;
+  color: snow;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px #535151, -4px -4px 8px #726b6b88;
+  transition: background-color 0.3s;
+}
+
+.boton-accion img {
+  width: 100%;
+  height: 80%;
+  filter: brightness(0) saturate(100%);
+}
+
+.boton-accion:hover {
+  background-color: snow;
+  color: #3384aa;
+}
+/* ----------------------------------------------------------------------------------------------------- */
+.zona-superior-derecha {
+  position: absolute;
+  top: 1.8rem;
+  right: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.zona-superior-derecha button {
+  padding: 6px 12px;
+  font-size: 1.5rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #3384aa;
+  color: snow;
+  cursor: pointer;
+}
+
+.zona-superior-derecha button:hover {
+  background-color: #2b6d8f;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+.contenedor-monedas {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2%;
+}
+
+.tarjeta-moneda {
+  width: 40%;
+  background-color: snow;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.bandera-moneda {
+  width: 40%;
+  height: 50%;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.monto-moneda {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #3384aa;
+  margin-bottom: 0rem;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+
+.grid-dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 auto;
+}
+
+.banner-homebanking {
+  width: 90%;
+  height: 20rem;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  padding: 2%;
+  color: snow;
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  margin: 1rem auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.banner-homebanking:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+/* Distintos backgrounds para cada botón */
+#btnVincularCuentaSueldo {
+  background-image: url(img/cuentasueldo.png);
+}
+#btnAbrirPlazoFijo {
+  background-image: url(img/plazo-fijo.jpg);
+  background-position: contain;
+}
+#btnPrestamos {
+  background-image: url(img/prestamos2.jpg);
+  align-items: end;
+}
+#btnCuponera {
+  background-image: url(img/cupones.png);
+  align-items: end;
+  color: black;
+}
+
+#btnContactos img {
+  height: 50px;
+  filter:
+    invert(48%) sepia(45%) saturate(517%) hue-rotate(163deg) brightness(95%) contrast(90%) drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
+}
+
+#btnServicios {
+  width: 95%;
+  height: 35rem;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  padding: 2%;
+  color: snow;
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  margin: 0 auto;
+  margin-bottom: 4rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.8s ease, background-color 0.3s ease;
+  background-image: url(img/servicios.png);
+}
+
+#btnServicios:hover {
+  filter: brightness(1.05);
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+
+.modal-servicios {
+  background-color: snow;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 30vw;
+  height: 75vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin: auto;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.slider {
+  display: flex;
+  transition: transform 0.7s ease-in-out;
+}
+
+.slider .tarjeta-servicio {
+  width: 100%;
+  flex-shrink: 0;
+  min-height: 50vh;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.tarjeta-servicio img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+  margin-bottom: 0.5em;
+}
+
+.tarjeta-servicio p {
+  margin: 0.2rem 0;
+  font-size: 2rem;
+}
+
+.tarjeta-servicio .monto {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #3384aa;
+  width: 100%;
+}
+
+.slider-nav {
+  color: snow;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #3384aa94;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+  padding: 0.2em 0.5em;
+  z-index: 2;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
+#btnPrev {
+  left: 10px;
+}
+#btnNext {
+  right: 10px;
+}
+
+.acciones-servicios {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/* Ocultar elementos ----------------------------------------------------------------------------------- */
+.oculto {
+  display: none;
+}
+
+.tabla-estandar {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.tabla-estandar th,
+.tabla-estandar td {
+  padding: 10px;
+  text-align: center;
+}
+
+.tabla-estandar thead {
+  background-color: #3384aa;
+  color: snow;
+  font-weight: bold;
+}
+
+.tabla-estandar tbody tr:nth-child(even) {
+  background-color: #9ac8db; /* celeste para filas pares */
+}
+.tabla-estandar tbody tr:nth-child(odd) {
+  background-color: snow; /*  para filas impares */
+}
+
+#iconoNotificaciones {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+}
+
+#iconoNotificaciones img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter:
+    invert(48%) sepia(45%) saturate(517%) hue-rotate(163deg) brightness(95%) contrast(90%) drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
+}
+
+.badge { 
+  position: absolute;
+  top: -4px;
+  right: 375px;
+  background-color: red;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 3px black;
+}
+
+.modal-notificaciones {
+  width: 85vw;
+  max-width: 600px;
+}
+
+#listaNotificaciones {
+  list-style: none;
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#listaNotificaciones li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+#divisasOverlay {
+  margin-top: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tarjeta-divisa {
+  background: #f1f1f1;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  width: 200px;
+  transition: 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.info-divisa {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.botones-divisa {
+  margin-top: 10px;
+  display: none;
+  justify-content: space-between;
+}
+
+.tarjeta-divisa:hover .botones-divisa {
+  display: flex;
+}
+
+/* ------------------------------------------------------------------------------------------ */
+#contenedorCupones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.cupon {
+  background: url('img/cupon.png') no-repeat center center;
+  background-size: contain;
+  padding: 1rem;
+  color: #333;
+  border-radius: 8px;
+  min-height: 150px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.cupon strong {
+  font-size: 1.5rem;
+}
+
+.cupon em {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: #333;
 }
