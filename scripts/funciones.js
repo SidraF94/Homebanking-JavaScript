@@ -17,7 +17,7 @@ function inicializarFondo() {
     const fondo = fondos[indiceActual];
 
     fondoDiv.style.backgroundImage = `
-      url('${fondo}'),
+      url("${fondo}"),
       linear-gradient(to top right, rgba(102, 144, 236, 0.53) 0%, rgba(245, 244, 244, 0.03) 60%, rgba(24, 23, 23, 0.74) 100%)
     `;
     fondoDiv.style.backgroundBlendMode = "overlay";
@@ -72,7 +72,7 @@ function avanzarDias(cantidad) {
 function inicializarUsuariosBase() {
   //Chequeo que no exista en localStorage ningun array de Usuarios
   if (!localStorage.getItem("usuarios")) {
-    const usuarios = [
+    usuarios = [
       {
         usuario: "admin",
         contraseña: "1234",
@@ -132,24 +132,24 @@ function inicializarUsuariosBase() {
 
 function miAlerta(mensaje, callbackCerrar) { // Puedo o no pasar una funcion que siga despues del 
   // alerta (lo hago en generarToken por ejemplo)
-  const overlay = document.getElementById('modalAlertaOverlay');//modal 
-  const mensajeP = document.getElementById('modalAlertaMensaje');// parrafo p
-  const btn = document.getElementById('modalAlertaBtn');// boton
+  const overlay = document.getElementById("modalAlertaOverlay");//modal 
+  const mensajeP = document.getElementById("modalAlertaMensaje");// parrafo p
+  const btn = document.getElementById("modalAlertaBtn");// boton
   //para que se asegure de obtener los tres. 
   if (!overlay || !mensajeP || !btn) return;
 
   mensajeP.innerHTML = mensaje.replace(/\n/g, "<br>"); //El mensaje que le pasamos a la funcion. 
-  overlay.classList.remove('oculto'); //Lo hacemos visible
+  overlay.classList.remove("oculto"); //Lo hacemos visible
 
   let enterListoParaCerrar = false;
   //Esto lo puse para que el enter anterior no me lo cierre. 
   setTimeout(() => { enterListoParaCerrar = true; }, 300);
 
   function cerrarModal() {
-    overlay.classList.add('oculto'); //Lo ocultamos
+    overlay.classList.add("oculto"); //Lo ocultamos
     //evitamos que quede en memoria
-    overlay.removeEventListener('keydown', teclaCerrar);
-    btn.removeEventListener('click', cerrarModal);
+    overlay.removeEventListener("keydown", teclaCerrar);
+    btn.removeEventListener("click", cerrarModal);
     if (typeof callbackCerrar === "function") callbackCerrar();
     //Si le pasamos una funcion a miAlerta la llama
   }
@@ -165,8 +165,8 @@ function miAlerta(mensaje, callbackCerrar) { // Puedo o no pasar una funcion que
       cerrarModal();
     }
   }
-  btn.addEventListener('click', cerrarModal);
-  overlay.addEventListener('keydown', teclaCerrar); //teclaCerrar de escape o enter
+  btn.addEventListener("click", cerrarModal);
+  overlay.addEventListener("keydown", teclaCerrar); //teclaCerrar de escape o enter
   overlay.focus(); //Para que el modal escuche al teclado
 }
 
@@ -188,7 +188,7 @@ function miPrompt(mensaje, callback) {
 
   function cerrarModal() {
     overlay.classList.add("oculto");
-    overlay.removeEventListener('keydown', teclaCerrar);
+    overlay.removeEventListener("keydown", teclaCerrar);
     btnAceptar.removeEventListener("click", aceptar);
     btnCancelar.removeEventListener("click", cancelar);
   }
@@ -215,7 +215,7 @@ function miPrompt(mensaje, callback) {
   }
   btnAceptar.addEventListener("click", aceptar);
   btnCancelar.addEventListener("click", cancelar);
-  overlay.addEventListener('keydown', teclaCerrar);
+  overlay.addEventListener("keydown", teclaCerrar);
 
   input.focus(); //En este caso el focus al input.
 }
@@ -224,40 +224,40 @@ function miPrompt(mensaje, callback) {
 
 function miConfirm(mensaje, callback) {
 
-  const overlay = document.getElementById('modalConfirmOverlay');
-  const mensajeP = document.getElementById('modalConfirmMensaje');
-  const btnOk = document.getElementById('modalConfirmBtnOk');
-  const btnCancel = document.getElementById('modalConfirmBtnCancel');
+  const overlay = document.getElementById("modalConfirmOverlay");
+  const mensajeP = document.getElementById("modalConfirmMensaje");
+  const btnOk = document.getElementById("modalConfirmBtnOk");
+  const btnCancel = document.getElementById("modalConfirmBtnCancel");
 
   if (!overlay || !mensajeP || !btnOk || !btnCancel) return;
 
   mensajeP.textContent = mensaje;
-  overlay.classList.remove('oculto');
+  overlay.classList.remove("oculto");
 
   function cerrarModal() {
-    overlay.classList.add('oculto');
-    btnOk.removeEventListener('click', enOk); //Si preSionamos ok nos va a devolver true
-    btnCancel.removeEventListener('click', enCancelar); // si es cancelar nos devuelve false
-    document.removeEventListener('keydown', teclaCerrar); // Si es enter sera true, si es Escape sera false
+    overlay.classList.add("oculto");
+    btnOk.removeEventListener("click", enOk); //Si preSionamos ok nos va a devolver true
+    btnCancel.removeEventListener("click", enCancelar); // si es cancelar nos devuelve false
+    document.removeEventListener("keydown", teclaCerrar); // Si es enter sera true, si es Escape sera false
   }
   function enOk() {
     cerrarModal();
-    if (typeof callback === 'function') callback(true);
+    if (typeof callback === "function") callback(true);
   }
   function enCancelar() {
     cerrarModal();
-    if (typeof callback === 'function') callback(false);
+    if (typeof callback === "function") callback(false);
   }
   function teclaCerrar(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       enOk();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       enCancelar();
     }
   }
-  btnOk.addEventListener('click', enOk);
-  btnCancel.addEventListener('click', enCancelar);
-  document.addEventListener('keydown', teclaCerrar);
+  btnOk.addEventListener("click", enOk);
+  btnCancel.addEventListener("click", enCancelar);
+  document.addEventListener("keydown", teclaCerrar);
 
   btnCancel.focus(); //Aca lo ponemos a que por defecto venga en cancelar
 }
@@ -710,9 +710,9 @@ function mostrarCuponesModal(usuario) {
   }
   overlay.classList.remove("oculto");
 
-  document.getElementById("btnCerrarCupones").onclick = () => {
+  document.getElementById("btnCerrarCupones").addEventListener("click", () => {
     overlay.classList.add("oculto");
-  };
+  });
 }
 
 function generarCupones(usuario, evento, fechaActual) {
@@ -1243,9 +1243,9 @@ function procesarPlazosFijosVencidos(usuario) {
 
   if (huboVencimientos) {
     const usuarios = cargarUsuarios();
-    const idx = usuarios.findIndex(u => u.alias === usuario.alias);
-    if (idx !== -1) {
-      usuarios[idx] = usuario;
+    const index = usuarios.findIndex(u => u.alias === usuario.alias);
+    if (index !== -1) {
+      usuarios[index] = usuario;
       guardarUsuarios(usuarios);
     }
   }
@@ -1513,11 +1513,11 @@ function realizarTransferenciaADestino(usuarioActivo, usuarioDestino) {
     });
 
     const usuarios = cargarUsuarios();
-    const idxOrigen = usuarios.findIndex(u => u.alias === usuarioActivo.alias);
-    const idxDestino = usuarios.findIndex(u => u.alias === usuarioDestino.alias);
+    const indexOrigen = usuarios.findIndex(u => u.alias === usuarioActivo.alias);
+    const indexDestino = usuarios.findIndex(u => u.alias === usuarioDestino.alias);
 
-    if (idxOrigen !== -1) usuarios[idxOrigen] = usuarioActivo;
-    if (idxDestino !== -1) usuarios[idxDestino] = usuarioDestino;
+    if (indexOrigen !== -1) usuarios[indexOrigen] = usuarioActivo;
+    if (indexDestino !== -1) usuarios[indexDestino] = usuarioDestino;
 
     guardarUsuarios(usuarios);
 
@@ -1535,23 +1535,6 @@ function realizarTransferenciaADestino(usuarioActivo, usuarioDestino) {
     );
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function transferirPorContacto(usuarioActivo, usuarios) {
   if (!usuarioActivo.contactos || usuarioActivo.contactos.length === 0) {
@@ -1591,23 +1574,6 @@ function transferirPorContacto(usuarioActivo, usuarios) {
   };
   btnConfirmar.addEventListener("click", cuandoConfirmasContacto);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function transferirPorAlias(usuarioActivo) {
   const usuarios = cargarUsuarios();
@@ -1764,6 +1730,7 @@ function eliminarDatosLocalStorage() {
   miConfirm("¿Estás seguro de que querés eliminar todos los datos guardados?", (respuesta) => {
     if (respuesta) {
       localStorage.clear();
+      inicializarUsuariosBase()
       miAlerta("Los datos han sido eliminados.");
     }
   });
@@ -1781,3 +1748,4 @@ function homebanking() {
   chequearEventosUsuario(usuarioActivo);
   actualizarTitulo();
 }
+

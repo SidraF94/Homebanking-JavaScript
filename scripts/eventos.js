@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Inicializar fondo y usuario base 
     inicializarFondo();
-    inicializarUsuariosBase()
+    inicializarUsuariosBase();
 
     // referencias a botones y formularios de iniciar sesion y cerrarla. 
     const btnInicio = document.getElementById("btnInicioSesion");
@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
         evento.preventDefault();
         const user = document.getElementById("loginUsuario").value.trim();
         const pass = document.getElementById("loginPassword").value;
-
         const exitoso = iniciarSesionDOM(user, pass);
 
         if (exitoso) {
@@ -45,15 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
             miAlerta("Usuario o contraseña incorrectos");
         }
     });
-    formRegistro.addEventListener('submit', function (evento) {
+    formRegistro.addEventListener("submit", function (evento) {
         evento.preventDefault();
         //tomo cada dato de donde esta en el formulario.
-        const nombre = document.getElementById('registroNombre').value.trim();
-        const apellido = document.getElementById('registroApellido').value.trim();
-        const usuario = document.getElementById('registroUsuario').value.trim();
-        const contraseña = document.getElementById('registroPassword').value;
-        const sexo = document.getElementById('registroSexo').value;
-        const edad = document.getElementById('registroEdad').value.trim();
+        const nombre = document.getElementById("registroNombre").value.trim();
+        const apellido = document.getElementById("registroApellido").value.trim();
+        const usuario = document.getElementById("registroUsuario").value.trim();
+        const contraseña = document.getElementById("registroPassword").value;
+        const sexo = document.getElementById("registroSexo").value;
+        const edad = document.getElementById("registroEdad").value.trim();
         registrarUsuarioDOM({ nombre, apellido, usuario, contraseña, sexo, edad });
     });
 
@@ -64,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // Botón "Avanzar días"
     document.getElementById("btnAvanzarDias").addEventListener("click", () => {
-        miPrompt("¿Cuántos días desea avanzar?", (respuesta) => {
+        miPrompt("Cuántos días desea avanzar?", (respuesta) => {
             const cantidad = parseInt(respuesta);
             if (!isNaN(cantidad) && cantidad > 0) {
                 avanzarDias(cantidad);
@@ -82,43 +81,48 @@ document.addEventListener("DOMContentLoaded", () => {
     if (usuarioActivo && usuarioActivo.nombre && usuarioActivo.apellido) {
         titulo.textContent = `Bienvenido ${usuarioActivo.nombre} ${usuarioActivo.apellido}`;
     } else {
-        titulo.textContent = "Bienvenido";
+        titulo.textContent = "Bienvenido usuario";
     }
     document.getElementById("btnMostrarMovimientos").addEventListener("click", () => {
         mostrarHistorialModal(usuarioActivo);
     });
     document.getElementById("btnCuponera").addEventListener("click", suscribirseACupones);
 
-    document.getElementById("btnServicios").onclick = () => {
+    document.getElementById("btnServicios").addEventListener("click", () => {
         cargarCarruselServicios();
         document.getElementById("modalServiciosOverlay").classList.remove("oculto");
-    };
-    document.getElementById("btnCerrarServicios").onclick = () => {
+    });
+
+    document.getElementById("btnCerrarServicios").addEventListener("click", () => {
         document.getElementById("modalServiciosOverlay").classList.add("oculto");
-    };
-    document.getElementById("btnPagarTodosServicios").onclick = () => {
+    });
+
+    document.getElementById("btnPagarTodosServicios").addEventListener("click", () => {
         pagarTodosLosServicios();
         cargarCarruselServicios();
-    };
+    });
     // Slider de servicios
     let indiceSlider = 0;
-    document.getElementById("btnPrev").onclick = () => {
+
+    // Botón "Anterior"
+    document.getElementById("btnPrev").addEventListener("click", () => {
         const slider = document.getElementById("slider");
         const total = slider.children.length;
-        if (total === 0) return; //Si no hay servicios que pagar. 
-        indiceSlider = (indiceSlider - 1 + total) % total; //no va al indice -1, si no al indice -1 + lenght
+        if (total === 0) return; // Si no hay servicios que pagar.
+        indiceSlider = (indiceSlider - 1 + total) % total; // no va al índice -1, sino al índice -1 + length
         slider.style.transform = `translateX(-${indiceSlider * 100}%)`;
-    };
+    });
 
-    document.getElementById("btnNext").onclick = () => {
+    // Botón "Siguiente"
+    document.getElementById("btnNext").addEventListener("click", () => {
         const slider = document.getElementById("slider");
         const total = slider.children.length;
         if (total === 0) return;
         indiceSlider = (indiceSlider + 1) % total;
         slider.style.transform = `translateX(-${indiceSlider * 100}%)`;
-        //Como cada tarjeta ocupa el 100% del div vamos a la tarjeta que tenga ese 
-        // porcentaje, asi me aseguré de que se muevan los bloques completos. 
-    };
+        // Como cada tarjeta ocupa el 100% del div, vamos a la tarjeta que tenga ese
+        // porcentaje, así me aseguré de que se muevan los bloques completos.
+    });
 
     // Modal abrir plazos fijos ---------------------
     const btnAbrirPlazoFijo = document.getElementById("btnAbrirPlazoFijo");
@@ -270,13 +274,13 @@ document.addEventListener("DOMContentLoaded", () => {
             mostrarPlazosFijos(usuarioActivo);
         });
     }
-    const btnIngresar = document.getElementById('btnIngresarDinero');
+    const btnIngresar = document.getElementById("btnIngresarDinero");
     if (btnIngresar) {
-        btnIngresar.addEventListener('click', ingresarDinero);
+        btnIngresar.addEventListener("click", ingresarDinero);
     }
-    const btnCuenta = document.getElementById('btnVincularCuentaSueldo');
+    const btnCuenta = document.getElementById("btnVincularCuentaSueldo");
     if (btnCuenta) {
-        btnCuenta.addEventListener('click', () => {
+        btnCuenta.addEventListener("click", () => {
             if (!usuarioActivo) {
                 miAlerta("No hay usuario activo.");
                 return;
@@ -285,22 +289,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     // Abrir el modal de Contactos
-    document.getElementById('btnContactos').addEventListener('click', () => {
-        document.getElementById('modalContactosOverlay').classList.remove('oculto');
+    document.getElementById("btnContactos").addEventListener("click", () => {
+        document.getElementById("modalContactosOverlay").classList.remove("oculto");
     });
     // Cerrar el modal
-    document.getElementById('btnCerrarContactos').addEventListener('click', () => {
-        document.getElementById('modalContactosOverlay').classList.add('oculto');
+    document.getElementById("btnCerrarContactos").addEventListener("click", () => {
+        document.getElementById("modalContactosOverlay").classList.add("oculto");
     });
     // Ver Alias
-    document.getElementById('btnVerAlias').addEventListener('click', verAliasUsuario);
+    document.getElementById("btnVerAlias").addEventListener("click", verAliasUsuario);
     // Cambiar Alias
-    document.getElementById('btnCambiarAlias').addEventListener('click', cambiarAliasUsuario);
+    document.getElementById("btnCambiarAlias").addEventListener("click", cambiarAliasUsuario);
     // Agendar contacto
-    document.getElementById('btnAgendarContacto').addEventListener('click', agregarContactoAUsuario);
+    document.getElementById("btnAgendarContacto").addEventListener("click", agregarContactoAUsuario);
     // Ver contactos
     document.getElementById("btnVerContactos").addEventListener("click", () => {
-        // Cerrar el modal de opciones
+        // Cerrar opciones
         document.getElementById("modalContactosOverlay").classList.add("oculto");
         mostrarListaDeContactos();
     });
@@ -308,15 +312,15 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modalListaContactos").classList.add("oculto");
     });
     // Abrir modal de transferencias
-    document.getElementById('btnTransferir').addEventListener('click', () => {
-        document.getElementById('modalTransferenciasOverlay').classList.remove('oculto');
+    document.getElementById("btnTransferir").addEventListener("click", () => {
+        document.getElementById("modalTransferenciasOverlay").classList.remove("oculto");
     });
     // Cerrar modal de transferencias
-    document.getElementById('btnCerrarTransferencias').addEventListener('click', () => {
-        document.getElementById('modalTransferenciasOverlay').classList.add('oculto');
+    document.getElementById("btnCerrarTransferencias").addEventListener("click", () => {
+        document.getElementById("modalTransferenciasOverlay").classList.add("oculto");
     });
     // Transferir por alias
-    document.getElementById('btnTransferirAlias').addEventListener('click', () => {
+    document.getElementById("btnTransferirAlias").addEventListener("click", () => {
         transferirPorAlias(usuarioActivo, usuarios);
     });
     // Transferir por contacto
@@ -339,12 +343,13 @@ document.addEventListener("DOMContentLoaded", () => {
         BRL: 200
     };
     const saldosDivisas = {
-        USD: 'saldoDolares',
-        EUR: 'saldoEuros',
-        BRL: 'saldoReales'
+        USD: "saldoDolares",
+        EUR: "saldoEuros",
+        BRL: "saldoReales"
     };
-    document.querySelectorAll('.btnComprar').forEach(btn => {
-        btn.addEventListener('click', () => {
+    
+    document.querySelectorAll(".btnComprar").forEach(btn => {
+        btn.addEventListener("click", () => {
             const monedaACambiar = btn.dataset.moneda;
             if (!monedaACambiar) {
                 return miAlerta("Error: el botón no tiene moneda asociada.");
@@ -376,13 +381,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     });
-    document.querySelectorAll('.btnVender').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const monedaRaw = btn.dataset.moneda;
-            if (!monedaRaw) {
+    document.querySelectorAll(".btnVender").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const monedaACambiar = btn.dataset.moneda;
+            if (!monedaACambiar) {
                 return miAlerta("Error: el botón no tiene moneda asociada.");
             }
-            const divisa = monedaRaw.toUpperCase();
+            const divisa = monedaACambiar.toUpperCase();
             const tasa = tasas[divisa];
             const propiedad = saldosDivisas[divisa];
 
@@ -391,8 +396,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             usuarioActivo[propiedad] = parseFloat(usuarioActivo[propiedad]) || 0;
 
-            miPrompt(`¿Cuántos ${divisa} querés vender?`, (montoStr) => {
-                const monto = parseFloat(montoStr);
+            miPrompt(`¿Cuántos ${divisa} querés vender?`, (montoString) => {
+                const monto = parseFloat(montoString);
                 if (isNaN(monto) || monto <= 0) return miAlerta("Monto inválido.");
                 if (usuarioActivo[propiedad] < monto) return miAlerta(`No tenés suficiente saldo en ${divisa}.`);
 
@@ -464,27 +469,27 @@ document.addEventListener("DOMContentLoaded", () => {
         iconoOjo.src = "img/eye.svg";
         iconoOjo.alt = "Mostrar saldo";
     }
-    const btnPrestamos = document.getElementById('btnPrestamos');
-    const modalPrestamos = document.getElementById('modalPrestamos');
-    const btnCerrarModalPrestamos = document.getElementById('btnCerrarModalPrestamos');
-    const btnSolicitarPrestamo = document.getElementById('btnSolicitarPrestamo');
-    const btnVerEstadoPrestamo = document.getElementById('btnVerEstadoPrestamo');
+    const btnPrestamos = document.getElementById("btnPrestamos");
+    const modalPrestamos = document.getElementById("modalPrestamos");
+    const btnCerrarModalPrestamos = document.getElementById("btnCerrarModalPrestamos");
+    const btnSolicitarPrestamo = document.getElementById("btnSolicitarPrestamo");
+    const btnVerEstadoPrestamo = document.getElementById("btnVerEstadoPrestamo");
 
     // Función para abrir el modal
     function abrirModalPrestamos() {
-        modalPrestamos.classList.remove('oculto');
+        modalPrestamos.classList.remove("oculto");
     }
     // Función para cerrar el modal
     function cerrarModalPrestamos() {
-        modalPrestamos.classList.add('oculto');
+        modalPrestamos.classList.add("oculto");
     }
-    btnPrestamos.addEventListener('click', abrirModalPrestamos);
-    btnCerrarModalPrestamos.addEventListener('click', cerrarModalPrestamos);
-    btnSolicitarPrestamo.addEventListener('click', () => {
+    btnPrestamos.addEventListener("click", abrirModalPrestamos);
+    btnCerrarModalPrestamos.addEventListener("click", cerrarModalPrestamos);
+    btnSolicitarPrestamo.addEventListener("click", () => {
         cerrarModalPrestamos();
         solicitarPrestamo(usuarioActivo);
     });
-    btnVerEstadoPrestamo.addEventListener('click', () => {
+    btnVerEstadoPrestamo.addEventListener("click", () => {
         cerrarModalPrestamos();
         mostrarPrestamos(usuarioActivo);
     });

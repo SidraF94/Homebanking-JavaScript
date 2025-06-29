@@ -16,6 +16,7 @@ body {
   transition: background-image 0.8s ease-in-out;
   overflow-x: hidden;
 }
+
 /* Fondo en movimiento. */
 #fondoDinamico {
   position: fixed;
@@ -30,23 +31,27 @@ body {
   animation: moverFondo 30s ease-in-out infinite alternate;
   transition: background-image 10s ease-in-out;
 }
+
 @keyframes moverFondo {
   0% {
     background-position: 0% 40%;
   }
+
   100% {
     background-position: 80% 50%;
   }
 }
+
 /* Estilos para el titulo de la pantalla principal */
 h1 {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 2%;
   font-size: 9rem;
   font-weight: bold;
   color: rgb(102, 144, 236);
   -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
 }
+
 /* Estilos de la botonera superior de la pagina principal */
 .botonera-superior {
   margin: 1% 0 0 0;
@@ -71,7 +76,7 @@ h1 {
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(102, 144, 255, 0.5);
   transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .botonera-superior button:hover {
@@ -98,7 +103,7 @@ h1 {
   padding: 3rem 2rem;
   z-index: 1;
   font-size: 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .formulario-estandar div {
@@ -132,6 +137,7 @@ h1 {
   border-color: rgb(30, 66, 150);
   outline: none;
 }
+
 /* Botones dentro de los formularios */
 .formulario-estandar button:not(.cerrar-formulario) {
   background-color: rgb(102, 144, 236);
@@ -149,6 +155,7 @@ h1 {
 .formulario-estandar button:not(.cerrar-formulario):hover {
   background-color: rgb(75, 105, 180);
 }
+
 /* Botón cerrar X para formularios */
 .cerrar-formulario {
   position: absolute;
@@ -194,8 +201,9 @@ h1 {
 
 .icono-basura {
   width: 3rem;
-  height:3rem;
+  height: 3rem;
 }
+
 /* Estilos de la pagina principal una vez iniciada sesion. ----------------------------------- */
 #pantallaLoginRegistro,
 #pantallaHomebanking {
@@ -222,6 +230,7 @@ h1 {
   padding: 1rem;
   overflow-y: auto;
 }
+
 /* Contenido visual del modal */
 .modal-contenido {
   background-color: snow;
@@ -234,6 +243,7 @@ h1 {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   position: relative;
 }
+
 .modal-contenido.pequeno {
   width: 320px;
   max-width: 90vw;
@@ -264,6 +274,7 @@ h1 {
   border-color: #0056b3;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
+
 /* Botones unificados */
 .boton-modal {
   padding: 10px 20px;
@@ -306,6 +317,7 @@ h1 {
   font-weight: 700;
   margin: 5rem;
 }
+
 /* ----------------------------------------------------------------------------------------------------- */
 h2 {
   font-size: 2.5rem;
@@ -316,6 +328,7 @@ h2 {
 #tituloBienvenida {
   font-size: 4.5rem;
 }
+
 #pantallaHomebanking {
   background: linear-gradient(to bottom, snow 30%, #3384AA 85%, rgba(51, 132, 170, 0));
   height: 100%;
@@ -365,6 +378,7 @@ h2 {
 .saldo-card.flipped {
   transform: rotateY(180deg);
 }
+
 /* el ojo */
 .btn-eye {
   background: none;
@@ -384,7 +398,7 @@ h2 {
   font-size: 5rem;
   font-weight: bold;
   color: black;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 
 .titulo-tarjeta {
@@ -397,12 +411,14 @@ h2 {
   padding-bottom: 0;
   margin-bottom: 1.2rem;
 }
+
 /* Monto y ojo uno al lado del otro */
 .saldo-monto {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
+
 /* espacio entre botones */
 .saldo-bottom {
   display: flex;
@@ -436,7 +452,7 @@ h2 {
 .info-divisa {
   display: flex;
   flex-direction: column;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .nombre-divisa {
@@ -453,6 +469,7 @@ h2 {
 #btnFlipBack {
   margin-bottom: 3%;
 }
+
 /* Estilos de los botones de trasnfe ingreso y divisas. */
 .saldo-acciones {
   width: 50%;
@@ -493,6 +510,7 @@ h2 {
   background-color: snow;
   color: #3384aa;
 }
+
 /* ----------------------------------------------------------------------------------------------------- */
 .zona-superior-derecha {
   position: absolute;
@@ -581,18 +599,22 @@ h2 {
   transform: scale(1.02);
   filter: brightness(1.05);
 }
+
 /* Distintos backgrounds para cada botón */
 #btnVincularCuentaSueldo {
   background-image: url(img/cuentasueldo.png);
 }
+
 #btnAbrirPlazoFijo {
   background-image: url(img/plazo-fijo.jpg);
   background-position: contain;
 }
+
 #btnPrestamos {
   background-image: url(img/prestamos2.jpg);
   align-items: end;
 }
+
 #btnCuponera {
   background-image: url(img/cupones.png);
   align-items: end;
@@ -707,6 +729,7 @@ h2 {
 #btnPrev {
   left: 10px;
 }
+
 #btnNext {
   right: 10px;
 }
@@ -741,10 +764,13 @@ h2 {
 }
 
 .tabla-estandar tbody tr:nth-child(even) {
-  background-color: #9ac8db; /* celeste para filas pares */
+  background-color: #9ac8db;
+  /* celeste para filas pares */
 }
+
 .tabla-estandar tbody tr:nth-child(odd) {
-  background-color: snow; /*  para filas impares */
+  background-color: snow;
+  /*  para filas impares */
 }
 
 #iconoNotificaciones {
@@ -761,7 +787,7 @@ h2 {
     invert(48%) sepia(45%) saturate(517%) hue-rotate(163deg) brightness(95%) contrast(90%) drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
 }
 
-.badge { 
+.badge {
   position: absolute;
   top: -4px;
   right: 375px;
@@ -832,12 +858,12 @@ h2 {
 }
 
 .cupon {
-  background: url('img/cupon.png') no-repeat center center;
+  background: url("img/cupon.png") no-repeat center center;
   background-size: contain;
   padding: 1rem;
   color: #333;
   border-radius: 8px;
-  min-height: 150px; 
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: center;

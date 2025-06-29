@@ -15,13 +15,6 @@ Este proyecto simula una plataforma de **homebanking** desarrollada íntegrament
 
 ---
 
-### 🧠 Función Central: `homebanking()` 🧠
-
-- Núcleo del simulador.
-- Gestiona la sesión del usuario y **llama a todas las funcionalidades**: depósitos, retiros, transferencias, historial, eventos, etc.
-
----
-
 ### 💰 Operaciones Bancarias 💰
 
 - Consultar saldo.
@@ -50,7 +43,7 @@ Este proyecto simula una plataforma de **homebanking** desarrollada íntegrament
 - Registra cada operación con:
   - Fecha.
   - Descripción.
-  - Monto (+/-).
+  - Monto con codigo de colores.
   - **Saldo restante después de cada acción**.
 - Vinculado al sistema de notificaciones.
 
@@ -128,12 +121,20 @@ Este proyecto hace uso de diversas **estructuras y características clave de Jav
 - Operadores de **comparación** (`===`, `!==`, `<`, `>`, `<=`, `>=`)
 - Operadores **lógicos** (`&&`, `||`, `!`)
 
-### 📥 Entrada y Salida 📥
+### 📥 Entrada y Salida Personalizada 📥
 
-- `prompt` para ingreso de datos.
-- `confirm` para decisiones del usuario.
-- `alert` para notificaciones y mensajes.
-- `parseInt` y `parseFloat` para conversión de datos numéricos.
+Se reemplazaron las funciones nativas `prompt`, `confirm` y `alert` por versiones personalizadas con estilo visual coherente y control desde el DOM:
+
+- **`miPrompt(mensaje, callback)`**  
+  Abre un modal para que el usuario ingrese datos. Al confirmar, se ejecuta una función callback con el valor ingresado.
+
+- **`miConfirm(mensaje, callback)`**  
+  Muestra una confirmación personalizada con botones de "Aceptar" o "Cancelar". La función callback recibe `true` o `false`.
+
+- **`miAlerta(mensaje, callbackOpcional)`**  
+  Muestra una alerta con diseño estilizado y botón de cierre. Permite ejecutar una función al cerrarse (opcional).
+
+> Estas funciones permiten una experiencia de usuario más fluida, accesible y visualmente integrada al simulador.
 
 ### 🔧 Funciones 🔧
 
@@ -148,15 +149,19 @@ Este proyecto hace uso de diversas **estructuras y características clave de Jav
 
 ### 🛠️ Métodos de Array 🛠️
 
-- `.push()` para agregar movimientos y plazos.
-- `.join()` para mostrar información agrupada.
-- `.reverse()` para mostrar los movimientos en orden descendente.
+- `.push()` para agregar elementos a arrays como movimientos, plazos, notificaciones o contactos.
+- `.join()` para mostrar datos agrupados en string.
+- `.reverse()` para invertir el orden de visualización (por ejemplo, historial).
+- `.filter()` para generar nuevas listas (como servicios impagos o préstamos activos).
+- `.forEach()` para recorrer y ejecutar lógica en cada elemento.
+- `.includes()` para verificar existencia de elementos simples.
 
 ### 🔄 Callbacks y Métodos Avanzados 🔄
 
-- `.find()` para buscar usuarios por alias.
-- `.some()` para validar condiciones específicas.
-- `.reduce()` para cálculos de saldos o totales acumulados.
+- `.find()` para buscar un único usuario, alias o contacto.
+- `.findIndex()` para obtener la posición de un elemento dentro de un array.
+- `.some()` para saber si existe al menos un elemento que cumple cierta condición.
+- `.reduce()` para sumar saldos, calcular totales de pagos o intereses acumulados.
 
 ---
 
@@ -169,10 +174,23 @@ Este proyecto hace uso de diversas **estructuras y características clave de Jav
 
 ---
 
-## 🚧 Mejoras Futuras 🚧
+### 💾 Persistencia con `localStorage`
 
-- Persistencia de datos con `localStorage`.
-- Interfaz visual en HTML/CSS.
+- Toda la información del sistema se guarda automáticamente en `localStorage`, incluyendo:
+  - Usuarios registrados.
+  - Movimientos, préstamos, servicios y plazos fijos.
+  - Notificaciones y eventos simulados.
+  - Días simulados para el avance del calendario.
+- Esto permite continuar una sesión incluso tras cerrar o recargar el navegador.
+- Incluye opción para **eliminar manualmente todos los datos** del sistema (`eliminarDatosLocalStorage()`), con confirmación visual.
 
 ---
+
+### 🖼️ Interfaz Visual en HTML/CSS
+
+- Reemplazo completo de prompts nativos por **modales estilizados** con HTML y CSS:
+  - `miPrompt`, `miConfirm` y `miAlerta` ofrecen una experiencia más profesional.
+- Diseño con imágenes dinámicas y fondo cambiante.
+- Botones interactivos y formularios.
+- Navegación visual con **pantallas diferenciadas** para login y homebanking.
 
