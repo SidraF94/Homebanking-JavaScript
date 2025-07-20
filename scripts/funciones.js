@@ -599,7 +599,7 @@ function descargarHistorialPDF(usuario) {
     return [fecha, descripcion, monto, saldo];
   });
 
-  // Tabla con marca de agua y pie de página
+  // Tabla con pie de página
   doc.autoTable({
     head: encabezados,
     body: filas,
@@ -616,7 +616,7 @@ function descargarHistorialPDF(usuario) {
     willDrawPage: (data) => {
       const { width, height } = doc.internal.pageSize;
       doc.setFontSize(60);
-      doc.setTextColor(240, 240, 240); // más claro aún
+      doc.setTextColor(240, 240, 240); 
       doc.setFont("helvetica", "bold");
       doc.text("HomeBanking", width / 2, height / 2, {
         angle: 45,
