@@ -1,4 +1,4 @@
-![Proyecto JavaScript](imagenes/javascript-logo-banner.jpg)
+![Proyecto JavaScript](img/javascript-logo-banner.jpg)
 
 # 💻 Proyecto: Homebanking (Simulación en JavaScript)
 
@@ -174,7 +174,7 @@ Se reemplazaron las funciones nativas `prompt`, `confirm` y `alert` por versione
 
 ---
 
-### 💾 Persistencia con `localStorage`
+### 💾 Persistencia con `localStorage` 💾
 
 - Toda la información del sistema se guarda automáticamente en `localStorage`, incluyendo:
   - Usuarios registrados.
@@ -186,11 +186,54 @@ Se reemplazaron las funciones nativas `prompt`, `confirm` y `alert` por versione
 
 ---
 
-### 🖼️ Interfaz Visual en HTML/CSS
+### 🖼️ Interfaz Visual en HTML/CSS 🖼️ 
 
-- Reemplazo completo de prompts nativos por **modales estilizados** con HTML y CSS:
-  - `miPrompt`, `miConfirm` y `miAlerta` ofrecen una experiencia más profesional.
+- Reemplazo completo de funciones nativas por **modales estilizados** con HTML y CSS:
+  - `miPrompt`, `miConfirm` y `miAlerta` ofrecen una experiencia más personalizada.
 - Diseño con imágenes dinámicas y fondo cambiante.
 - Botones interactivos y formularios.
 - Navegación visual con **pantallas diferenciadas** para login y homebanking.
+
+---
+
+## ⏱️ Asincronismo y Promesas ⏱️
+
+El proyecto incluye manejo de asincronismo mediante el uso de **promesas** con `.then()` y `.catch()`:
+
+- Uso de `fetch().then().catch()` para realizar peticiones externas a APIs públicas.
+- Control de errores con `catch` para evitar bloqueos en caso de fallos de red o permisos denegados.
+- Ejemplo práctico: al obtener ubicación del usuario con `navigator.geolocation`, se consulta a **Nominatim** para obtener el nombre de la ciudad y luego a **Open-Meteo** para mostrar el clima en tiempo real.
+
+---
+
+## 🌍 Geolocalización y APIs Externas 🌍
+
+Se integran varias APIs externas para enriquecer la experiencia del usuario:
+
+### 📍 Nominatim (OpenStreetMap) 📍
+
+- Se usa para convertir coordenadas en nombres de ciudad (geocodificación inversa).
+- Protegido con un **proxy CORS** para evitar bloqueos del navegador.
+
+### ☁️ Open-Meteo ☁️
+
+- API meteorológica que permite mostrar el **clima actual** según ubicación del usuario.
+- La respuesta se maneja con `fetch().then().catch()` y se renderiza en el DOM dinámicamente.
+
+### 💲 DolarApi 💲 
+
+- Consulta a [dolarapi.com](https://dolarapi.com) para obtener la cotización del dólar en tiempo real.
+- Permite mostrar diferenetes cotizaciones como **dólar, euro o real**, según se necesite en el simulador.
+
+---
+
+## 🧾 Exportación a PDF (jsPDF + autoTable) 🧾
+
+El proyecto incorpora la librería **jsPDF** y su extensión **jsPDF-AutoTable** para permitir la descarga de información en formato PDF:
+
+- Exportación del **historial de movimientos** como tabla.
+- Personalización del PDF con fecha, nombre del usuario, encabezado y estilo básico.
+- Uso de `doc.autoTable()` para estructurar datos fácilmente desde arrays de objetos.
+
+> Estas funcionalidades mejoran la experiencia del usuario al ofrecer herramientas reales de consulta y documentación, simulando a un sistema bancario profesional.
 

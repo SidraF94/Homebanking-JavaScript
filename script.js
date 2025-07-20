@@ -378,7 +378,7 @@
 //     }
 //     usuario.servicios.forEach(servicio => {
 //         const { min, max } = servicio.rango;
-//         const nuevoMonto = Math.floor(Math.random() * (max - min + 1)) + min; // Aca generamos el monto de cada factura 
+//         const nuevoMonto = Math.floor(Math.random() * (max - min + 1)) + min; // Aca genero el monto de cada factura 
 //         // con forEach que es una funcion callback.
 //         if (servicio.pagado) {
 //             servicio.monto = nuevoMonto;
@@ -605,7 +605,7 @@
 //         return false;
 //     }
 
-//     // Verificamos si cumplió el plazo mínimo:
+//     // Verifico si cumplió el plazo mínimo:
 //     const diasTranscurridos = Math.floor((fechaHoy - pfijo.fechaInicio) / (1000 * 60 * 60 * 24));
 //     if (diasTranscurridos < 30) {
 //         alert("No se puede retirar antes de 30 días.");
@@ -613,7 +613,7 @@
 //     }
 //     const total = pfijo.monto + pfijo.interesesAcumulados;
 //     usuario.saldo += total;
-//     // Marcamos como retirado
+//     // Marco como retirado
 //     pfijo.retirado = true;
 
 //     registraMovimiento(`Retiro plazo fijo: $${pfijo.monto.toFixed(2)} + intereses: $${pfijo.interesesAcumulados.toFixed(2)}`, total);
@@ -724,7 +724,7 @@
 // // Funciones de Prestamos ---------------------------------------------------------------------------
 
 // function solicitarPrestamo(usuario) {
-//     const tienePrestamoActivo = usuario.prestamos.some(prest => prest.activo); //Chequeamos que no tenga un prestamo ya
+//     const tienePrestamoActivo = usuario.prestamos.some(prest => prest.activo); //Chequeo que no tenga un prestamo ya
 //     if (tienePrestamoActivo) {
 //         alert("Ya tenes un prestamo activo, primero tenes que terminar de saldarlo.");
 //         return
@@ -847,19 +847,19 @@
 // function agregarNotificacion(usuario, mensaje) {
 //     usuario.notificaciones.push({
 //         mensaje: mensaje,
-//         leida: false, //Marcamos si el usuario la vio o no.
+//         leida: false, //Marco si el usuario la vio o no.
 //         fecha: new Date(obtenerFechaSimulada()) //Fecha simulada.
 //     });
 // }
 
 // function contarNotificacionesPendientes(usuario) {
 //     return usuario.notificaciones.filter(noti => !noti.leida).length;
-//     // FILTRAMOS solo las notificaciones no leidas dentro de ese usuario
+//     // FILTRO solo las notificaciones no leidas dentro de ese usuario
 // }
 
 // function mostrarNotificaciones(usuario) {
 //     const pendientes = contarNotificacionesPendientes(usuario);
-//     //vemos cuantas notificaciones tiene el usuario y la guardamos en pendientes.
+//     //vemos cuantas notificaciones tiene el usuario y la guardo en pendientes.
 //     if (usuario.notificaciones.length === 0) {
 //         alert("No tienes notificaciones.");
 //         return
@@ -869,7 +869,7 @@
 //         texto += `${i + 1}. [${n.leida ? "Leída" : "Nueva"}] ${n.mensaje} (${n.fecha.toLocaleDateString()})\n`;
 //     });
 //     alert(texto)
-//     //Marcamos como leidas una vez se mostraron. 
+//     //Marco como leidas una vez se mostraron. 
 //     usuario.notificaciones.forEach(n => n.leida = true)
 // }
 
@@ -989,7 +989,7 @@
 //     aliasContacto = aliasContacto.trim().toLowerCase();
 
 //     if (!usuarioActivo.contactos) {
-//         usuarioActivo.contactos = []; // Creamos el array si no existe
+//         usuarioActivo.contactos = []; // Creo el array si no existe
 //     }
 //     if (usuarioActivo.contactos.some(cont => cont.alias.toLowerCase() === aliasContacto)) {
 //         alert("Este contacto ya está en tu lista.");
@@ -1080,7 +1080,7 @@
 //             seleccionadas.push(palabra);
 //         }
 //     }
-//     let alias = seleccionadas.join(".").toUpperCase(); // Unimos con un "." con join y llevamos a Mayusculas.
+//     let alias = seleccionadas.join(".").toUpperCase(); // Unimos con un "." con join y llevo a Mayusculas.
 //     return alias
 // }
 
@@ -1103,13 +1103,13 @@
 //     }
 //     nuevoAlias = nuevoAlias.trim();
 
-//     if (!aliasRegex.test(nuevoAlias)) { //.test chequea que se cumpla la expresion regular que ingresamos a nuevoAlias
+//     if (!aliasRegex.test(nuevoAlias)) { //.test chequea que se cumpla la expresion regular que ingreso a nuevoAlias
 //         alert("Alias inválido. Debe tener 2 o 3 palabras separadas por punto. Ej: juan.perez o maria.lopez.diaz");
 //         return false;
 //     }
 
 //     nuevoAlias = nuevoAlias.toUpperCase();
-//     //Chequeamos que el alias no esté en uso.
+//     //Chequeo que el alias no esté en uso.
 //     const aliasEnUso = usuarios.some(u => u.alias === nuevoAlias);
 //     if (aliasEnUso) {
 //         alert("Ese alias ya está en uso.");
@@ -1195,15 +1195,15 @@
 // function procesarEventoMensual(usuario, evento, fechaActual, funcionEjecutora, diaEjecucion) {
 //     const ultima = evento.fechaUltimaRevision || usuario.fechaRegistro || new Date();
 
-//     // Calculamos meses transcurridos entre la última ejecución y la fecha actual
+//     // Calculo meses transcurridos entre la última ejecución y la fecha actual
 //     let mesesPasados =
 //         (fechaActual.getFullYear() - ultima.getFullYear()) * 12 +
 //         (fechaActual.getMonth() - ultima.getMonth());
 
 //     if (mesesPasados > 0) {
-//         // Para cada mes transcurrido, verificamos si ya pasó el día para ejecutar
+//         // Para cada mes transcurrido, verifico si ya pasó el día para ejecutar
 //         for (let i = 1; i <= mesesPasados; i++) {
-//             // Calculamos la fecha del evento para el mes i
+//             // Calculo la fecha del evento para el mes i
 //             const fechaEvento = new Date(ultima.getFullYear(), ultima.getMonth() + i, diaEjecucion);
 
 //             if (fechaActual >= fechaEvento) {

@@ -331,89 +331,37 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btnCerrarSeleccionContacto").addEventListener("click", () => {
         document.getElementById("modalSeleccionContacto").classList.add("oculto");
     });
+
+
     document.getElementById("btnDivisas").addEventListener("click", () => {
         document.getElementById("modalMonedasOverlay").classList.remove("oculto");
+        actualizarMontosTarjetas(); // ahora los elementos existen y no da error
     });
     document.getElementById("btnCerrarMonedas").addEventListener("click", () => {
         document.getElementById("modalMonedasOverlay").classList.add("oculto");
     });
-    const tasas = {
-        USD: 1150,
-        EUR: 1310,
-        BRL: 200
-    };
-    const saldosDivisas = {
-        USD: "saldoDolares",
-        EUR: "saldoEuros",
-        BRL: "saldoReales"
-    };
-    
-    document.querySelectorAll(".btnComprar").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const monedaACambiar = btn.dataset.moneda;
-            if (!monedaACambiar) {
-                return miAlerta("Error: el botón no tiene moneda asociada.");
-            }
-            const divisa = monedaACambiar.toUpperCase();
-            const tasa = tasas[divisa];
-            const propiedad = saldosDivisas[divisa];
 
-            if (!tasa || !propiedad) {
-                return miAlerta(`No se encontró información para la divisa "${divisa}".`);
-            }
-            miPrompt(`¿Cuántos ${divisa} querés comprar?`, (montoStr) => {
-                const monto = parseFloat(montoStr);
-                if (isNaN(monto) || monto <= 0) return miAlerta("Monto inválido.");
 
-                const costo = monto * tasa;
-                if (usuarioActivo.saldo < costo) return miAlerta("No tenés saldo suficiente.");
+    cargarTasasActuales().then(() => {
+        asignarEventosDivisas();
+    });
 
-                usuarioActivo.saldo -= costo;
-                usuarioActivo[propiedad] = parseFloat(usuarioActivo[propiedad]) || 0;
-                usuarioActivo[propiedad] += monto;
-
-                registraMovimiento(`Compra de ${monto} ${divisa}`, -costo);
-
-                guardarUsuarios(usuarios);
-                actualizarSaldoEnPantalla();
-
-                miAlerta(`Compra realizada. Se descontaron $${costo.toFixed(2)}.`);
+    function asignarEventosDivisas() {
+        document.querySelectorAll(".btnComprar").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const divisa = btn.dataset.moneda?.toUpperCase();
+                if (divisa) manejarCompra(divisa);
             });
         });
-    });
-    document.querySelectorAll(".btnVender").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const monedaACambiar = btn.dataset.moneda;
-            if (!monedaACambiar) {
-                return miAlerta("Error: el botón no tiene moneda asociada.");
-            }
-            const divisa = monedaACambiar.toUpperCase();
-            const tasa = tasas[divisa];
-            const propiedad = saldosDivisas[divisa];
 
-            if (!tasa || !propiedad) {
-                return miAlerta(`No se encontró información para la divisa "${divisa}".`);
-            }
-            usuarioActivo[propiedad] = parseFloat(usuarioActivo[propiedad]) || 0;
-
-            miPrompt(`¿Cuántos ${divisa} querés vender?`, (montoString) => {
-                const monto = parseFloat(montoString);
-                if (isNaN(monto) || monto <= 0) return miAlerta("Monto inválido.");
-                if (usuarioActivo[propiedad] < monto) return miAlerta(`No tenés suficiente saldo en ${divisa}.`);
-
-                const ganancia = monto * tasa;
-                usuarioActivo[propiedad] -= monto;
-                usuarioActivo.saldo += ganancia;
-
-                registraMovimiento(`Venta de ${monto} ${divisa}`, ganancia);
-
-                guardarUsuarios(usuarios);
-                actualizarSaldoEnPantalla();
-
-                miAlerta(`Venta realizada. Se acreditaron $${ganancia.toFixed(2)}.`);
+        document.querySelectorAll(".btnVender").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const divisa = btn.dataset.moneda?.toUpperCase();
+                if (divisa) manejarVenta(divisa);
             });
         });
-    });
+    }
+
 
     const cardContainer = document.getElementById("saldoCardContainer");
     const saldoCard = document.getElementById("saldoCard");
@@ -497,4 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnEliminar) {
         btnEliminar.addEventListener("click", eliminarDatosLocalStorage);
     }
+    
+    cargarClimaDesdeUbicacion();
+
 });

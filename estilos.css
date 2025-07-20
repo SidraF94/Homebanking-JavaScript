@@ -879,3 +879,13 @@ h2 {
   margin-top: 0.5rem;
   color: #333;
 }
+
+.clima-box {
+  font-size: 1.3rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #7dd6ec;
+  color: #073b5c;
+  display: inline-block;
+  margin: 0.5rem 1rem;
+}

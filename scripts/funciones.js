@@ -146,18 +146,18 @@ function miAlerta(mensaje, callbackCerrar) { // Puedo o no pasar una funcion que
   setTimeout(() => { enterListoParaCerrar = true; }, 300);
 
   function cerrarModal() {
-    overlay.classList.add("oculto"); //Lo ocultamos
-    //evitamos que quede en memoria
+    overlay.classList.add("oculto"); //Lo oculto
+    //evito que quede en memoria
     overlay.removeEventListener("keydown", teclaCerrar);
     btn.removeEventListener("click", cerrarModal);
     if (typeof callbackCerrar === "function") callbackCerrar();
-    //Si le pasamos una funcion a miAlerta la llama
+    //Si le paso una funcion a miAlerta la llama
   }
 
   function teclaCerrar(e) {
     if (e.key === "Escape") {
-      e.preventDefault(); //Evitamos que el navegador haga cualquier cosa (por defecto)
-      e.stopPropagation();//Evitamos que la accion se propague a otros elementos. 
+      e.preventDefault(); //Evito que el navegador haga cualquier cosa (por defecto)
+      e.stopPropagation();//Evito que la accion se propague a otros elementos. 
       cerrarModal(); //se cierra
     } else if (e.key === "Enter" && enterListoParaCerrar) {
       e.preventDefault();
@@ -236,7 +236,7 @@ function miConfirm(mensaje, callback) {
 
   function cerrarModal() {
     overlay.classList.add("oculto");
-    btnOk.removeEventListener("click", enOk); //Si preSionamos ok nos va a devolver true
+    btnOk.removeEventListener("click", enOk); //Si preSiono ok nos va a devolver true
     btnCancel.removeEventListener("click", enCancelar); // si es cancelar nos devuelve false
     document.removeEventListener("keydown", teclaCerrar); // Si es enter sera true, si es Escape sera false
   }
@@ -416,7 +416,7 @@ function generarAlias() {
       seleccionadas.push(palabra);
     }
   }
-  let alias = seleccionadas.join(".").toUpperCase(); // Unimos con un "." con join y llevamos a Mayusculas.
+  let alias = seleccionadas.join(".").toUpperCase(); // Unimos con un "." con join y llevo a Mayusculas.
   return alias
 }
 
@@ -534,10 +534,12 @@ function mostrarHistorialModal(usuario) {
   });
 
   overlay.classList.remove("oculto");
+  const btnDescargar = document.getElementById("btnDescargarMovimientos");
+  btnDescargar.onclick = () => descargarHistorialPDF(usuario);
 
   const btnCerrar = document.getElementById("btnCerrarMovimientos");
 
-  // Limpiamos primero cualquier evento anterior
+  // Limpio primero cualquier evento anterior
   const cerrar = () => {
     overlay.classList.add("oculto");
     overlay.removeEventListener("click", clickFuera);
@@ -571,6 +573,71 @@ function registraMovimiento(descripcion, monto) {
     usuarios.push(usuarioActivo);
   }
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
+}
+
+function descargarHistorialPDF(usuario) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Título
+  doc.setFontSize(16);
+  doc.setTextColor(33, 126, 185);
+  doc.text("Historial de Movimientos", 20, 20);
+
+  // Usuario
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Cliente: ${usuario.nombre} ${usuario.apellido}`, 20, 28);
+
+  const encabezados = [["Fecha", "Descripción", "Monto", "Saldo"]];
+
+  const filas = usuario.movimientos.slice().reverse().map(mov => {
+    const fecha = mov.fecha ? new Date(mov.fecha).toLocaleDateString() : "Sin fecha";
+    const descripcion = mov.descripcion;
+    const monto = `${mov.monto >= 0 ? "+" : "-"}$${Math.abs(mov.monto).toFixed(2)}`;
+    const saldo = `$${mov.saldoResultante.toFixed(2)}`;
+    return [fecha, descripcion, monto, saldo];
+  });
+
+  // Tabla con marca de agua y pie de página
+  doc.autoTable({
+    head: encabezados,
+    body: filas,
+    startY: 35,
+    styles: {
+      fontSize: 10,
+      cellPadding: 3
+    },
+    headStyles: {
+      fillColor: [33, 126, 185],
+      textColor: 255,
+      fontStyle: 'bold'
+    },
+    willDrawPage: (data) => {
+      const { width, height } = doc.internal.pageSize;
+      doc.setFontSize(60);
+      doc.setTextColor(240, 240, 240); // más claro aún
+      doc.setFont("helvetica", "bold");
+      doc.text("HomeBanking", width / 2, height / 2, {
+        angle: 45,
+        align: "center"
+      });
+    },
+    didDrawPage: (data) => {
+      doc.setFontSize(10);
+      doc.setTextColor(150);
+      const pageHeight = doc.internal.pageSize.height;
+      doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, pageHeight - 10);
+    }
+  });
+
+  // Saldo final
+  const saldoFinal = `$${usuario.saldo.toFixed(2)}`;
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Saldo actual: ${saldoFinal}`, 20, doc.lastAutoTable.finalY + 10);
+
+  doc.save("historial_movimientos.pdf");
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1520,6 +1587,7 @@ function realizarTransferenciaADestino(usuarioActivo, usuarioDestino) {
     if (indexDestino !== -1) usuarios[indexDestino] = usuarioDestino;
 
     guardarUsuarios(usuarios);
+    generarComprobanteTransferenciaPDF(usuarioActivo, usuarioDestino, monto, fecha);
 
     // Notificación y alerta
     agregarNotificacion(
@@ -1619,6 +1687,50 @@ function transferirPorAlias(usuarioActivo) {
     }
   });
 }
+
+function generarComprobanteTransferenciaPDF(origen, destino, monto, fecha) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Estilos generales
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(0, 0, 0);
+
+  // Título
+  doc.setFontSize(35);
+  doc.setTextColor(33, 126, 185);
+  doc.text("Comprobante de Transferencia", 20, 20);
+
+  // Fecha
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Fecha: ${new Date(fecha).toLocaleString()}`, 20, 28);
+
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+
+  // Datos del origen
+  doc.text("Emisor:", 20, 40);
+  doc.text(`Nombre: ${origen.nombre} ${origen.apellido}`, 30, 48);
+  doc.text(`Alias: ${origen.alias}`, 30, 56);
+  doc.text(`Banco: ${origen.banco}`, 30, 64);
+  doc.text(`Cuenta: ${origen.numeroCuenta}`, 30, 72);
+
+  // Datos del destino
+  doc.text("Receptor:", 20, 88);
+  doc.text(`Nombre: ${destino.nombre} ${destino.apellido}`, 30, 96);
+  doc.text(`Alias: ${destino.alias}`, 30, 104);
+  doc.text(`Banco: ${destino.banco}`, 30, 112);
+  doc.text(`Cuenta: ${destino.numeroCuenta}`, 30, 120);
+
+  // Monto transferido
+  doc.setFontSize(25);
+  doc.setTextColor(0, 100, 0);
+  doc.text(`Monto transferido: $${monto.toFixed(2)}`, 20, 140);
+
+  doc.save(`comprobante_transferencia_${Date.now()}.pdf`);
+}
+
 
 //-------------------------------------------------------------------------------------------------------------
 
@@ -1738,6 +1850,161 @@ function eliminarDatosLocalStorage() {
 
 //-------------------------------------------------------------------------------------------------------------
 
+let tasas = {};
+
+// USO de promesas y fetch con la API de DolarApi.com
+
+async function cargarTasasActuales() { // Funcion asincornica, trabaja con promesa try y catch
+  const proxy = "https://corsproxy.io/?";
+  //Solucion que encontre para poder usar DolarApi ya que me devolvia problema con CORS, este proxy 
+  // hace de intermediario para que el navegador no bloquee la solicitud. 
+  try {
+    const respuestaUSD = await fetch(proxy + "https://dolarapi.com/v1/dolares"); //Hacemos la peticion
+    const datosUSD = await respuestaUSD.json(); //La parseo y la guardo en datosUSD
+    const dolarOficial = datosUSD.find(item => item.casa === "oficial"); //Dolar oficial en este caso
+    tasas.USD = dolarOficial.venta;
+
+    const respuestaCotiz = await fetch(proxy + "https://dolarapi.com/v1/cotizaciones"); //Peticion para euro y real
+    const datosCotiz = await respuestaCotiz.json();
+    const euro = datosCotiz.find(item => item.moneda === "EUR");
+    const real = datosCotiz.find(item => item.moneda === "BRL");
+    tasas.EUR = euro.venta;
+    tasas.BRL = real.venta;
+
+  } catch (error) {
+    console.error("Error cargando tasas:", error);
+    tasas = { USD: 1150, EUR: 1310, BRL: 200 }; // Si no cargan desde dolarApi, establece estas
+    miAlerta("No se pudieron cargar las tasas. Usando valores por defecto.");
+  }
+}
+
+const saldosDivisas = {
+  USD: "saldoDolares",
+  EUR: "saldoEuros",
+  BRL: "saldoReales"
+};
+
+function manejarCompra(divisa) {
+  const tasa = tasas[divisa]; //Dentro de los corchetes la moneda que va a tratarse
+  const enPropiedad = saldosDivisas[divisa];
+  if (!tasa || !enPropiedad) return miAlerta(`No se encontró información para la divisa "${divisa}".`);
+  miPrompt(`¿Cuántos ${divisa} querés comprar?`, (montoStr) => {
+    const monto = parseFloat(montoStr);
+    if (isNaN(monto) || monto <= 0) return miAlerta("Monto inválido.");
+    const costo = monto * tasa;
+    if (usuarioActivo.saldo < costo) return miAlerta("No tenés saldo suficiente.");
+    usuarioActivo.saldo -= costo;
+    usuarioActivo[enPropiedad] = parseFloat(usuarioActivo[enPropiedad]) || 0;
+    usuarioActivo[enPropiedad] += monto;
+    registraMovimiento(`Compra de ${monto} ${divisa}`, -costo);
+    guardarUsuarios(usuarios);
+    actualizarSaldoEnPantalla();
+    miAlerta(`Compra realizada. Se descontaron $${costo.toFixed(2)}.`);
+  });
+}
+
+function manejarVenta(divisa) {
+  const tasa = tasas[divisa];
+  const enPropiedad = saldosDivisas[divisa];
+
+  if (!tasa || !enPropiedad) return miAlerta(`No se encontró información para la divisa "${divisa}".`);
+
+  usuarioActivo[enPropiedad] = parseFloat(usuarioActivo[enPropiedad]) || 0;
+
+  miPrompt(`¿Cuántos ${divisa} querés vender?`, (montoStr) => {
+    const monto = parseFloat(montoStr);
+    if (isNaN(monto) || monto <= 0) return miAlerta("Monto inválido.");
+    if (usuarioActivo[enPropiedad] < monto) return miAlerta(`No tenés suficiente saldo en ${divisa}.`);
+
+    const ganancia = monto * tasa;
+    usuarioActivo[enPropiedad] -= monto;
+    usuarioActivo.saldo += ganancia;
+
+    registraMovimiento(`Venta de ${monto} ${divisa}`, ganancia);
+    guardarUsuarios(usuarios);
+    actualizarSaldoEnPantalla();
+    miAlerta(`Venta realizada. Se acreditaron $${ganancia.toFixed(2)}.`);
+  });
+}
+
+
+function actualizarMontosTarjetas() {
+  if (!tasas || Object.keys(tasas).length === 0) return;
+  //Por si la api no responde bien. 
+  const usdEl = document.getElementById("montoUSD");
+  const eurEl = document.getElementById("montoEUR");
+  const brlEl = document.getElementById("montoBRL");
+  //Cambia el valor por defecto de todas las monedas 
+  if (usdEl) usdEl.textContent = `USD - $${tasas.USD.toFixed(2)}`;
+  if (eurEl) eurEl.textContent = `EUR - $${tasas.EUR.toFixed(2)}`;
+  if (brlEl) brlEl.textContent = `BRL - $${tasas.BRL.toFixed(2)}`;
+}
+
+//-------------------------------------------------------------------------------------------------------------
+
+async function cargarClimaDesdeUbicacion() {
+  const divClima = document.getElementById("clima-info");
+  if (!divClima) return;
+
+  // Muestra la temperatura en el DOM
+  function mostrarTemp(ciudad, temp) {
+    divClima.textContent = `Temperatura en ${ciudad}: ${temp}°C`;
+  }
+
+  // Muestra mensaje de error si no se puede obtener el clima
+  function mostrarError() {
+    divClima.textContent = "Clima no disponible";
+  }
+
+  // Consulta la API de Open-Meteo con las coordenadas y ciudad
+  function usarCoords(lat, lon, ciudad) {
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+      .then(res => res.json())
+      .then(data => {
+        const temperatura = data.current_weather.temperature;
+        mostrarTemp(ciudad, temperatura);
+      })
+      .catch(err => {
+        console.error("Error al cargar clima:", err);
+        mostrarError();
+      });
+  }
+
+  // Si el navegador no soporta geolocalización, usar Córdoba como fallback
+  if (!navigator.geolocation) {
+    usarCoords(-31.4167, -64.1833, "Córdoba");
+    return;
+  }
+
+  // Obtener la ubicación del usuario
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+
+      // Consultar Nominatim (OpenStreetMap) para obtener el nombre de la ciudad
+      const nominatimURL = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+      const proxiedURL = `https://corsproxy.io/?${encodeURIComponent(nominatimURL)}`;
+
+      fetch(proxiedURL)
+        .then(res => res.json())
+        .then(data => {
+          const ciudad = data.address.city || data.address.town || data.address.village || "Tu ciudad";
+          usarCoords(latitude, longitude, ciudad);
+        })
+        .catch(() => {
+          usarCoords(latitude, longitude, "Tu ciudad");
+        });
+    },
+    () => {
+      // Si el usuario deniega el acceso a la ubicación, usar Córdoba como fallback
+      usarCoords(-31.4167, -64.1833, "Córdoba");
+    }
+  );
+}
+
+//-------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
+
 function homebanking() {
   procesarPlazoFijo(usuarioActivo);
   procesarPlazosFijosVencidos(usuarioActivo);
@@ -1748,4 +2015,3 @@ function homebanking() {
   chequearEventosUsuario(usuarioActivo);
   actualizarTitulo();
 }
-
