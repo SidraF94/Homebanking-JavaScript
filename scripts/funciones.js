@@ -2015,3 +2015,6 @@ function homebanking() {
   chequearEventosUsuario(usuarioActivo);
   actualizarTitulo();
 }
+
+
+
